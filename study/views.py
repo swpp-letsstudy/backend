@@ -5,6 +5,10 @@ from study.models import *
 from study.serializers import *
 from study.permissions import *
 
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
 class StudyGroupList(generics.ListAPIView):
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
