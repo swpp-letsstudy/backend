@@ -4,10 +4,8 @@ from study import views
 from django.conf.urls import include
 
 urlpatterns = [
-    path('users/', views.UserList.as_view()),
-    path('users/<int:pk>/', views.UserDetail.as_view()),
-    path('meetings/', views.MeetingList.as_view()),
-    path('meetings/<int:pk>/', views.MeetingDetail.as_view()),
+    path('studygroups/', views.StudyGroupList.as_view()),
+    path('studymeetings/', views.StudyMeetingList.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

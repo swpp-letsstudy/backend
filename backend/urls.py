@@ -20,6 +20,7 @@ from rest_auth.views import LogoutView
 from .views import MyLoginView
 
 urlpatterns = [
+    path('', include('study.urls')),
     path('admin/', admin.site.urls),
 ]
 
