@@ -19,9 +19,7 @@ class StudyGroupList(generics.ListAPIView):
     serializer_class = StudyGroupSerializer
     def get_queryset(self):
         user = self.request.user
-        ret = StudyGroup.objects.filter(users__in=[user])
-        print(ret)
-        return ret
+        return StudyGroup.objects.filter(users__in=[user])
 
 class StudyMeetingList(generics.ListAPIView):
     queryset = StudyMeeting.objects.all()
