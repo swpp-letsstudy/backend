@@ -14,7 +14,9 @@ class StudyGroupList(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return StudyGroup.objects.filter(users__in=[user])
+        ret = StudyGroup.objects.filter(users__in=[user])
+        print(ret)
+        return ret
 
 class StudyMeetingList(generics.ListAPIView):
     queryset = StudyMeeting.objects.all()
