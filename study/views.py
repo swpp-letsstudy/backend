@@ -2,7 +2,7 @@ from rest_framework import generics
 from study.serializers import *
 from study.permissions import *
 
-class StudyGroupUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+class StudyGroupDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsUser)
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
