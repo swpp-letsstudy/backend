@@ -4,7 +4,7 @@ from study import views
 from django.conf.urls import include
 
 urlpatterns = [
-    path('users/', views.UserList.as_view()),
+    # path('users/', views.UserList.as_view()),
     path('study_groups/', views.StudyGroupList.as_view()),
     path('study_meetings/', views.StudyMeetingList.as_view()),
 ]
