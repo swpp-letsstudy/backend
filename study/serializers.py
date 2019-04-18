@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'study_groups')
 
 class StudyGroupSerializer(serializers.ModelSerializer):
-    users = UserSerializer(many=True)
+    users = UserSerializer(many=True, read_only=True)
     meetings = serializers.PrimaryKeyRelatedField(many=True, queryset=StudyMeeting.objects.all())
 
     class Meta:

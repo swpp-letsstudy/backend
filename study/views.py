@@ -9,12 +9,16 @@ from study.permissions import *
 #     queryset = User.objects.all()
 #     serializer_class = UserSerializer
 
-class StudyGroupList(generics.ListAPIView):
+class StudyGroupList(generics.ListCreateAPIView):
     serializer_class = StudyGroupSerializer
 
     def get_queryset(self):
         user = self.request.user
         return StudyGroup.objects.filter(users__in=[user])
+
+    def perform_create(self, serializer):
+        serializer.save(users=[self.request.user])
+
 
 class StudyMeetingList(generics.ListAPIView):
     queryset = StudyMeeting.objects.all()
