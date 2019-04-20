@@ -21,4 +21,4 @@ class StudyMeetingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudyMeeting
-        fields = ('id', 'group', 'time', 'name', 'info')
+        fields = ('id', 'group', 'time', 'info')

@@ -20,6 +20,10 @@ class StudyGroupList(generics.ListCreateAPIView):
         serializer.save(users=[self.request.user])
 
 
-class StudyMeetingList(generics.ListAPIView):
+class StudyMeetingList(generics.ListCreateAPIView):
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer
+
+    def perform_create(self, serializer):
+        group = StudyGroup.objects.filter(id=self.request.data['groupId'])[0]
+        serializer.save(group=group)
