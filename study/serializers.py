@@ -22,3 +22,11 @@ class StudyMeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyMeeting
         fields = ('id', 'group', 'time', 'info')
+
+class AttendanceSerializer(serializers.ModelSerializer):
+    meeting = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Attendance
+        fields = ('id', 'meeting', 'user')

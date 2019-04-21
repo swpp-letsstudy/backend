@@ -33,3 +33,12 @@ class StudyMeetingList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         group = StudyGroup.objects.filter(id=self.request.data['groupId'])[0]
         serializer.save(group=group)
+
+
+class AttendanceCreate(generics.CreateAPIView):
+    serializer_class = AttendanceSerializer
+
+    def perform_create(self, serializer):
+        user=User.objects.filter(id=self.request.data['userId'])[0]
+        meeting = StudyMeeting.objects.filter(id=self.request.data['meetingId'])[0]
+        serializer.save(meeting=meeting, user=user)
