@@ -33,3 +33,28 @@ class StudyMeetingList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         group = StudyGroup.objects.filter(id=self.request.data['groupId'])[0]
         serializer.save(group=group)
+
+
+class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsMeetingUser)
+    queryset = StudyMeeting.objects.all()
+    serializer_class = StudyMeetingSerializer
+
+
+class AttendanceCreate(generics.CreateAPIView):
+    serializer_class = AttendanceSerializer
+
+    '''
+    { userId, meetingID } => toggle attendance 
+    Toggle attendance with userId and meetingId.
+    If an attendance instance exists, delete it.
+    otherwise, create an new attendance instance.
+    '''
+    def perform_create(self, serializer):
+        user=User.objects.filter(id=self.request.data['userId'])[0]
+        meeting = StudyMeeting.objects.filter(id=self.request.data['meetingId'])[0]
+        attendances = Attendance.objects.filter(user=user, meeting=meeting)
+        if attendances:
+            attendances.delete()
+        else:
+            serializer.save(meeting=meeting, user=user)

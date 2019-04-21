@@ -18,7 +18,16 @@ class StudyGroupSerializer(serializers.ModelSerializer):
 
 class StudyMeetingSerializer(serializers.ModelSerializer):
     group = StudyGroupSerializer(read_only=True)
+    attendances = serializers.SlugRelatedField(many=True, read_only=True, slug_field='user_id')
 
     class Meta:
         model = StudyMeeting
-        fields = ('id', 'group', 'time', 'info')
+        fields = ('id', 'group', 'time', 'info', 'attendances')
+
+class AttendanceSerializer(serializers.ModelSerializer):
+    meeting = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Attendance
+        fields = ('id', 'meeting', 'user')

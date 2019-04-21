@@ -4,3 +4,4 @@ from .models import *
 
 admin.site.register(StudyGroup)
 admin.site.register(StudyMeeting)
+admin.site.register(Attendance)
