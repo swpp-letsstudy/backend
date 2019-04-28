@@ -4,7 +4,7 @@ from study.permissions import *
 from urllib.parse import parse_qs
 
 class StudyGroupDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsUser)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsGroupOwnerOrMember)
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
 
@@ -18,7 +18,8 @@ class StudyGroupList(generics.ListCreateAPIView):
         return StudyGroup.objects.filter(users__in=[user])
 
     def perform_create(self, serializer):
-        serializer.save(users=[self.request.user])
+        user = self.request.user
+        serializer.save(owner=user, members=[user])
 
 
 class StudyMeetingList(generics.ListCreateAPIView):
@@ -45,7 +46,7 @@ class AttendanceCreate(generics.CreateAPIView):
     serializer_class = AttendanceSerializer
 
     '''
-    { userId, meetingID } => toggle attendance 
+    { userId, meetingId } => toggle attendance 
     Toggle attendance with userId and meetingId.
     If an attendance instance exists, delete it.
     otherwise, create an new attendance instance.
