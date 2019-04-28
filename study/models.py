@@ -9,7 +9,8 @@ class StudyGroup(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=20)
     info = models.CharField(max_length=100)
-    users = models.ManyToManyField(User, related_name='study_groups')
+    owner = models.ForeignKey(User, related_name='study_groups_own', on_delete=models.CASCADE)
+    members = models.ManyToManyField(User, related_name='study_groups_join')
 
 
 class StudyMeeting(models.Model):

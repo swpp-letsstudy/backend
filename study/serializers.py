@@ -3,18 +3,22 @@ from django.contrib.auth.models import User
 
 from study.models import *
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'study_groups')
+        fields = ('id', 'username', 'study_groups_own', 'study_groups_join')
+
 
 class StudyGroupSerializer(serializers.ModelSerializer):
-    users = UserSerializer(many=True, read_only=True)
+    owner = UserSerializer(read_only=True)
+    members = UserSerializer(many=True, read_only=True)
     meetings = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = StudyGroup
-        fields = ('id', 'name', 'info', 'users', 'meetings')
+        fields = ('id', 'name', 'info', 'owner', 'members', 'meetings')
+
 
 class StudyMeetingSerializer(serializers.ModelSerializer):
     group = StudyGroupSerializer(read_only=True)
@@ -23,6 +27,7 @@ class StudyMeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyMeeting
         fields = ('id', 'group', 'time', 'info', 'attendances')
+
 
 class AttendanceSerializer(serializers.ModelSerializer):
     meeting = serializers.PrimaryKeyRelatedField(read_only=True)
