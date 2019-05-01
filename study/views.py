@@ -15,7 +15,7 @@ class StudyGroupList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return StudyGroup.objects.filter(users__in=[user])
+        return StudyGroup.objects.filter(members__in=[user])
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -28,7 +28,7 @@ class StudyMeetingList(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         groupId = parse_qs(self.request.GET.urlencode())['groupId'][0]
-        study_groups = StudyGroup.objects.filter(users__in=[user], id=groupId)
+        study_groups = StudyGroup.objects.filter(members__in=[user], id=groupId)
         return StudyMeeting.objects.filter(group__in=study_groups)
 
     def perform_create(self, serializer):
