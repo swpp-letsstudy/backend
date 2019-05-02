@@ -2,12 +2,7 @@ from rest_framework import generics
 from study.serializers import *
 from study.permissions import *
 from urllib.parse import parse_qs
-
-class StudyGroupDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsGroupOwnerOrMember)
-    queryset = StudyGroup.objects.all()
-    serializer_class = StudyGroupSerializer
-
+from django.contrib.auth.models import User
 
 class StudyGroupList(generics.ListCreateAPIView):
     serializer_class = StudyGroupSerializer
@@ -20,6 +15,12 @@ class StudyGroupList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         serializer.save(owner=user, members=[user])
+
+
+class StudyGroupDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsGroupOwnerOrMember)
+    queryset = StudyGroup.objects.all()
+    serializer_class = StudyGroupSerializer
 
 
 class StudyMeetingList(generics.ListCreateAPIView):
@@ -59,3 +60,9 @@ class AttendanceCreate(generics.CreateAPIView):
             attendances.delete()
         else:
             serializer.save(meeting=meeting, user=user)
+
+class CreateUser(generics.CreateAPIView):
+    serializer_class = UserRegisterSerializer
+
+    def perform_create(self, serializer):
+        User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])

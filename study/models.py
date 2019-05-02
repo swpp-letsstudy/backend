@@ -30,3 +30,4 @@ class Attendance(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     meeting = models.ForeignKey(StudyMeeting, related_name='attendances', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='attendances', on_delete=models.CASCADE)
+
