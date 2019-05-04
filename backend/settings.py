@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+CSRF_COOKIE_SECURE = True
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 
