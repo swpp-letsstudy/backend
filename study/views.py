@@ -60,9 +60,3 @@ class AttendanceCreate(generics.CreateAPIView):
             attendances.delete()
         else:
             serializer.save(meeting=meeting, user=user)
-
-class CreateUser(generics.CreateAPIView):
-    serializer_class = UserRegisterSerializer
-
-    def perform_create(self, serializer):
-        User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])
