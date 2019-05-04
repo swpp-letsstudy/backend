@@ -19,6 +19,11 @@ class StudyGroupSerializer(serializers.ModelSerializer):
         model = StudyGroup
         fields = ('id', 'name', 'info', 'owner', 'members', 'meetings')
 
+    def validate(self, studygroup):
+        print("self.data: " + str(self.data))
+        print("data: " + str(studygroup))
+        return studygroup
+
 
 class StudyMeetingSerializer(serializers.ModelSerializer):
     group = StudyGroupSerializer(read_only=True)

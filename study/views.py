@@ -1,12 +1,18 @@
 from rest_framework import generics
 from study.serializers import *
 from study.permissions import *
+from study.models import *
 from urllib.parse import parse_qs
 from django.contrib.auth.models import User
 
+from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 class StudyGroupList(generics.ListCreateAPIView):
     serializer_class = StudyGroupSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsUser)
+    permission_classes = (permissions.IsAuthenticated, IsUserInStudyGroup)
 
     def get_queryset(self):
         user = self.request.user
@@ -17,10 +23,21 @@ class StudyGroupList(generics.ListCreateAPIView):
         serializer.save(owner=user, members=[user])
 
 
-class StudyGroupDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsGroupOwnerOrMember)
+class StudyGroupDetail(generics.RetrieveDestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated, IsMember)
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
+
+
+class JoinStudyGroup(APIView):
+    def get(self, request, pk, format=None):
+        studygroup = StudyGroup.objects.get(pk=pk)
+        studygroup.members.add(request.user)
+        serializer = StudyGroupSerializer(studygroup, data=studygroup)
+        serializer.is_valid()
+        print("serializer.data: " + str(serializer.data))
+        serializer.save()
+        return Response(data=serializer.data)
 
 
 class StudyMeetingList(generics.ListCreateAPIView):
@@ -38,7 +55,7 @@ class StudyMeetingList(generics.ListCreateAPIView):
 
 
 class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsMeetingUser)
+    permission_classes = (permissions.IsAuthenticated, IsMeetingUser)
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer
 
