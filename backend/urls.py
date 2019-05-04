@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_auth.views import LogoutView
 
-from .views import MyLoginView
+from backend.views import *
 
 urlpatterns = [
     path('', include('study.urls')),
@@ -27,4 +27,5 @@ urlpatterns = [
 urlpatterns += [
     path('login/', MyLoginView.as_view()),
     path('logout/', LogoutView.as_view()),
+    path('register/', CreateUser.as_view()),
 ]

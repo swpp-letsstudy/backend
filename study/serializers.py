@@ -10,12 +10,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'study_groups_own', 'study_groups_join')
 
 
-class UserRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'password')
-        
-
 class StudyGroupSerializer(serializers.ModelSerializer):
     owner = UserSerializer(read_only=True)
     members = UserSerializer(many=True, read_only=True)
