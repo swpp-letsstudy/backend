@@ -1,10 +1,12 @@
+import datetime
+import pytz
 import subprocess
 import sys
 import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from study.models import StudyGroup
+from study.models import StudyGroup, StudyMeeting
 
 
 class Command(BaseCommand):
@@ -52,8 +54,19 @@ class Command(BaseCommand):
                 study_group.members.set([user])
         self.study_groups = StudyGroup.objects.all()
 
+    def create_meetings(self):
+        print("Create study meetings")
+        for study_group in StudyGroup.objects.all():
+            for i in range(3):
+                StudyMeeting.objects.create(
+                    time=datetime.datetime.now(pytz.utc),
+                    info='meeting info',
+                    group=study_group)
+
+
     def handle(self, *args, **options):
         self.delete_database()
         self.migrate_database()
         self.create_users()
         self.create_groups()
+        self.create_meetings()
