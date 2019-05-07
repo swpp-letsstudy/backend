@@ -1,0 +1,6 @@
+[run]
+source=
+    backend
+    study
+omit=
+    backend/wsgi.py
