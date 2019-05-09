@@ -6,6 +6,9 @@ class StudyGroup(models.Model):
     class Meta:
         ordering = ('created',)
 
+    def __str__(self):
+        return self.name
+
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=20)
     info = models.CharField(max_length=100)
@@ -17,9 +20,12 @@ class StudyMeeting(models.Model):
     class Meta:
         ordering = ('time',)
 
+    def __str__(self):
+        return self.time
+
     created = models.DateTimeField(auto_now_add=True)
     time = models.DateTimeField()
-    info = models.CharField(max_length=100)
+    info = models.CharField(default='', max_length=100)
     group = models.ForeignKey(StudyGroup, related_name='meetings', on_delete=models.CASCADE)
 
 
