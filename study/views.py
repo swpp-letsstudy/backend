@@ -1,18 +1,45 @@
-from rest_framework import generics
+from rest_framework import status, generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from urllib.parse import parse_qs
+
 from study.serializers import *
 from study.permissions import *
 from study.models import *
-from urllib.parse import parse_qs
-from django.contrib.auth.models import User
 
 from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+
+
+class MyLoginView(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'username': user.username,
+            'id': user.id,
+        })
+
+
+class MyRegisterView(APIView):
+    def post(self, request, *args, **kwargs):
+        if 'username' in request.data.keys() and 'password' in request.data.keys():
+            if User.objects.filter(username=request.data['username']).count() == 0:
+                User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])
+                return Response('successed', status=201)
+            return Response('username exists', status=409)
+        else:
+            raise Http404
+
 
 class StudyGroupList(generics.ListCreateAPIView):
     serializer_class = StudyGroupSerializer
-    permission_classes = (permissions.IsAuthenticated, IsUserInStudyGroup)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         user = self.request.user
@@ -20,7 +47,8 @@ class StudyGroupList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         user = self.request.user
-        serializer.save(owner=user, members=[user])
+        if serializer.is_valid():
+            serializer.save(owner=user, members=[user])
 
 
 class StudyGroupDetail(generics.RetrieveDestroyAPIView):
@@ -33,11 +61,10 @@ class JoinStudyGroup(APIView):
     def get(self, request, pk, format=None):
         studygroup = StudyGroup.objects.get(pk=pk)
         studygroup.members.add(request.user)
-        serializer = StudyGroupSerializer(studygroup, data=studygroup)
-        serializer.is_valid()
-        print("serializer.data: " + str(serializer.data))
-        serializer.save()
-        return Response(data=serializer.data)
+        studygroup.save()
+        studygroups = StudyGroup.objects.filter(members__in=[request.user])
+        serializer = StudyGroupSerializer(studygroups, many=True)
+        return Response(serializer.data)
 
 
 class StudyMeetingList(generics.ListCreateAPIView):
