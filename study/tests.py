@@ -1,14 +1,16 @@
 # from django.test import TestCase
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from study.models import StudyGroup
+
 
 USERS_INFO = [{
     'username': 'user{}'.format(i),
     'password': '1234'
 } for i in range(3)]
+
 
 class UserTestCase(APITestCase):
     def setUp(self):
@@ -20,12 +22,15 @@ class UserTestCase(APITestCase):
             response = self.client.post('/login/', USER_INFO)
             self.assertEqual(response.status_code, 200)
 
+
 GROUPS_INFO = [{
     'name': 'group{}'.format(i),
     'info': 'info',
 } for i in range(3)]
 
+
 class GroupTestCase(APITestCase):
+
     def setUp(self):
         for USER_INFO in USERS_INFO:
             User.objects.create_user(**USER_INFO)
@@ -46,7 +51,7 @@ class GroupTestCase(APITestCase):
         return self.client.post(path, data, **self.header())
 
     def test_create_group(self):
-        user = self.login(USERS_INFO[0])
+        self.login(USERS_INFO[0])
 
         for GROUP_INFO in GROUPS_INFO:
             response = self.post('/study_groups/', GROUP_INFO)
@@ -58,14 +63,16 @@ class GroupTestCase(APITestCase):
             for key_value in GROUP_INFO.items():
                 self.assertIn(key_value, response.data[i].items())
 
+
 MEETINGS_INFO = [{
     'time': datetime.now(timezone.utc).replace(
-        minute =0, second =0, microsecond = 0
-    ),
+        minute=0, second=0, microsecond=0),
     'info': 'info',
 }for i in range(3)]
 
+
 class MeetingTestCase(APITestCase):
+
     def setUp(self):
         for USER_INFO in USERS_INFO:
             User.objects.create_user(**USER_INFO)
@@ -86,11 +93,11 @@ class MeetingTestCase(APITestCase):
         return self.client.post(path, data, **self.header())
     
     def create_group(self, group_info):
-        response = self.post('/study_groups/', group_info)
+        self.post('/study_groups/', group_info)
         return self.get('/study_groups/')
     
     def test_create_meeting(self):
-        user = self.login(USERS_INFO[0])
+        self.login(USERS_INFO[0])
         for GROUP_INFO in GROUPS_INFO:
             self.create_group(GROUP_INFO)
 
