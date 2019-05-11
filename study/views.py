@@ -56,6 +56,18 @@ class StudyGroupDetail(generics.RetrieveDestroyAPIView):
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
 
+    def perform_destroy(self, request, *argc, **kwargs):
+        pk = self.kwargs.get('pk')
+        user = self.request.user
+        studygroup = StudyGroup.objects.get(pk=pk)
+        if studygroup.owner == user:
+            studygroup.delete()
+        else:
+            studygroup.members.remove(user)
+        studygroups = StudyGroup.objects.filter(members__in=[user])
+        serializer = StudyGroupSerializer(studygroups, many=True)
+        return Response(serializer.data)
+
 
 class JoinStudyGroup(APIView):
     def get(self, request, pk, format=None):
