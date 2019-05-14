@@ -162,14 +162,4 @@ class AttendanceTest(APITestCase):
                 data = dict([('userId',user.id)]+[('meetingId',meeting.id)])
                 response = self.post('/attendances/', data)
                 self.assertEqual(response.status_code, 201)
-    '''
-        for user in user_id:
-            for meeting in meeting_id:
-                response = self.get('/attendances?userId={}&meetingId={}/'.format(user.id, meeting.id))
-                self.assertEqual(response.status_code, 301)
-
-        for user in user_id:
-            for meeting in meeting_id:
-                response = self.put('/attendances?userId={}&meetingId={}/'.format(user.id, meeting.id))
-                self.assertEqual(response.status_code, 301)
-    '''
+   
