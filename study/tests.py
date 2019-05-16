@@ -11,6 +11,10 @@ USERS_INFO = [{
     'password': '1234'
 } for i in range(3)]
 
+USERS_R_INFO = [{
+    'username': 'user{}'.format(i),
+    'password': '1234'
+} for i in range(3)]
 
 class UserTestCase(APITestCase):
     def setUp(self):
@@ -22,6 +26,16 @@ class UserTestCase(APITestCase):
             response = self.client.post('/login/', USER_INFO)
             self.assertEqual(response.status_code, 200)
 
+class UserResgisterCase(APITestCase):
+    def test_register(self):
+        for USER_INFO in USERS_R_INFO:
+            response = self.client.post('/register/', USER_INFO)
+            self.assertEqual(response.status_code, 201)
+        
+        for USER_INFO in USERS_R_INFO:
+            response = self.client.post('/login/', USER_INFO)
+            self.assertEqual(response.status_code, 200)
+            
 
 GROUPS_INFO = [{
     'name': 'group{}'.format(i),
