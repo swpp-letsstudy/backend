@@ -240,7 +240,6 @@ class StudyMeetingList(generics.ListCreateAPIView): # meetings/
     # GET get StudyMeeting
     # POST { time, info }
     serializer_class = StudyMeetingSerializer
-
     def get_queryset(self):
         user = self.request.user
         groupId = parse_qs(self.request.GET.urlencode())['groupId'][0]
