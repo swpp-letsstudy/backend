@@ -66,10 +66,18 @@ class JoinStudyGroup(APIView):
         serializer = StudyGroupSerializer(studygroups, many=True)
         return Response(serializer.data)
 
+class ExitStudyGroup(APIView):
+    def delete(self, request, pk, format=None):
+        studygroup = StudyGroup.objects.get(pk=pk)
+        studygroup.members.through.objects.filter(user = request.user).delete()
+        studygroup.save()
+        studygroups = StudyGroup.objects.filter(members__in=[request.user])
+        serializer = StudyGroupSerializer(studygroups, many=True)
+        return Response(serializer.data)
+
 
 class StudyMeetingList(generics.ListCreateAPIView):
     serializer_class = StudyMeetingSerializer
-
     def get_queryset(self):
         user = self.request.user
         groupId = parse_qs(self.request.GET.urlencode())['groupId'][0]
