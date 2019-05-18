@@ -248,8 +248,9 @@ class StudyMeetingList(generics.ListCreateAPIView): # meetings/
         return StudyMeeting.objects.filter(group__in=study_groups)
 
     def perform_create(self, serializer):
+        user = self.request.user
         group = StudyGroup.objects.filter(id=self.request.data['groupId'])[0]
-        serializer.save(group=group)
+        serializer.save(group=group, members=[user])
 
 
 class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int:pk>
