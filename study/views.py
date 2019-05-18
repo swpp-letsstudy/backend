@@ -69,7 +69,7 @@ class JoinStudyGroup(APIView):
 class ExitStudyGroup(APIView):
     def delete(self, request, pk, format=None):
         studygroup = StudyGroup.objects.get(pk=pk)
-        studygroup.members.through.objects.filter(user = request.user).delete()
+        studygroup.members.through.objects.filter(studygroup_id = pk, user = request.user).delete()
         studygroup.save()
         studygroups = StudyGroup.objects.filter(members__in=[request.user])
         serializer = StudyGroupSerializer(studygroups, many=True)
