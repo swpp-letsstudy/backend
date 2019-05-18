@@ -20,7 +20,9 @@ from django.dispatch import receiver
 
 
 class StudyUserSetting(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    def __str__(self):
+        return self.user.username
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     info = models.CharField(default='', max_length=50)
 
 @receiver(post_save, sender=get_user_model())
@@ -75,6 +77,8 @@ class Policy(models.Model):
 class Fine(models.Model):
     class Meta:
         ordering = ('created',)
+    def __str_(self):
+        return self.user.username
     created = models.DateTimeField(auto_now_add=True)
 
     amount = models.IntegerField(default=0)
@@ -86,7 +90,7 @@ class StudyMeeting(models.Model):
     class Meta:
         ordering = ('time',)
     def __str__(self):
-        return self.time
+        return self.info
     created = models.DateTimeField(auto_now_add=True)
 
     time = models.DateTimeField()
@@ -95,6 +99,7 @@ class StudyMeeting(models.Model):
     members = models.ManyToManyField(User, related_name='study_meetings')
     # notices       StudyMeetingNotice  1:N
     # attendances   Attendance          1:N
+    # files         StudyFile           1:N
     # tests         StudyTest           1:N
 
 
@@ -114,6 +119,8 @@ class StudyMeetingNotice(models.Model):
 class Attendance(models.Model):
     class Meta:
         ordering = ('created',)
+    def __str__(self):
+        return self.user.username
     created = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(User, related_name='attendances', on_delete=models.CASCADE)
@@ -123,11 +130,14 @@ class Attendance(models.Model):
 class StudyFile(models.Model):
     class Meta:
         ordering = ('created',)
+    def __set__(self):
+        return self.filepath
     created = models.DateTimeField(auto_now_add=True)
 
     filepath = models.CharField(max_length=200)
     owner = models.ForeignKey(User, related_name='files', on_delete=models.CASCADE, null=True)
-    group = models.ForeignKey(StudyGroup, related_name='files', on_delete=models.CASCADE)
+    group = models.ForeignKey(StudyGroup, related_name='files', on_delete=models.CASCADE, null=True)
+    meeting = models.ForeignKey(StudyMeeting, related_name='files', on_delete=models.CASCADE, null=True)
 
 
 class StudyTest(models.Model):
@@ -139,6 +149,6 @@ class StudyTest(models.Model):
 
     title = models.CharField(max_length=20)
     owner = models.ForeignKey(User, related_name='tests', on_delete=models.CASCADE, null=True)
-    group = models.ForeignKey(StudyGroup, related_name='tests', on_delete=models.CASCADE)
-    meeting = models.ForeignKey(StudyMeeting, related_name='tests', on_delete=models.CASCADE)
+    group = models.ForeignKey(StudyGroup, related_name='tests', on_delete=models.CASCADE, null=True)
+    meeting = models.ForeignKey(StudyMeeting, related_name='tests', on_delete=models.CASCADE, null=True)
 

@@ -55,15 +55,15 @@ class Command(BaseCommand):
     def create_groups(self):
         print("Create StudyGroups")
         for i in range(1, 6):
-            user = User.objects.get(id=i)
+            user = User.objects.get(id=i+1)
             study_group = StudyGroup.objects.create(
                 name='group%d' % i,
                 info='info group%d' % i,
-                owner=user
-            )
+                owner=user,
+            ).members.set([user])
         for i in range(1, 6):
-            user = User.objects.get(id=i)
-            study_group = StudyGroup.objects.get(id=i%5+1)
+            user = User.objects.get(id=i%5+2)
+            study_group = StudyGroup.objects.get(id=i)
             study_group.members.add(user)
         self.study_groups = StudyGroup.objects.all()
 

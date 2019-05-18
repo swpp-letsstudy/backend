@@ -17,7 +17,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 # Without Login
 class MyLoginView(ObtainAuthToken): # login/
     # POST { username, password }, login and return { token, username, id }
-    def post(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
@@ -36,7 +36,7 @@ class MyLoginView(ObtainAuthToken): # login/
 
 class MyRegisterView(APIView): # register/
     # POST { username, password }, register
-    def post(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         if 'username' in request.data.keys() and 'password' in request.data.keys():
             if User.objects.filter(username=request.data['username']).exists():
                 return Response('username already exists', status=409)
@@ -61,7 +61,7 @@ class MyRegisterView(APIView): # register/
 # User
 class MySignOutView(APIView): # signout/
     # POST, signout
-    def post(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         request.user.delete()
 
 
@@ -99,8 +99,7 @@ class StudyGroupList(generics.ListCreateAPIView): # groups/
 
     def perform_create(self, serializer):
         user = self.request.user
-        if serializer.is_valid():
-            serializer.save(owner=user, members=[user])
+        serializer.save(owner=user, members=[user])
 
 
 class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
@@ -112,22 +111,21 @@ class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
 
-    def perform_destroy(self, request, pk, *argc, **kwargs):
+    def perform_destroy(self, request, *argc, **kwargs):
         user = self.request.user
-        studygroup = StudyGroup.objects.get(pk=pk)
+        studygroup = StudyGroup.objects.get(pk=self.kwargs['pk'])
         if studygroup.owner == user:
             studygroup.delete()
         else:
             studygroup.members.remove(user)
-        studygroups = StudyGroup.objects.filter(members__in=[user])
-        serializer = StudyGroupSerializer(studygroups, many=True)
-        return Response(serializer.data)
 
 
 class JoinStudyGroup(APIView): # join_group?token=<token>
     # GET add request.user in StudyGroup(pk=f(token)).members
     def get(self, request, format=None):
-        token = parse_qs(self.request.GET.urlencode())['token'][0]
+        token = self.request.query_params.get('token', None)
+        if token is None:
+            raise Http404
         pk = token # Need to do something more
         studygroup = StudyGroup.objects.get(pk=pk)
         studygroup.members.add(request.user)
@@ -144,31 +142,95 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        groupId = parse_qs(self.request.GET.urlencode())['groupId'][0]
+        groupId = self.request.query_params.get('groupId', None)
         group = StudyGroup.objects.get(id=groupId)
-        if not self.request.user in group.members.all():
+        if not self.request.user in group.members.a1ll():
             raise Http404
         return StudyGroupNotice.objects.filter(group=group)
 
     def perform_create(self, serializer):
         user = self.request.user
-        groupId = parse_qs(self.request.GET.urlencode())['groupId'][0]
+        groupId = self.request.query_params.get('groupId', None)
         group = StudyGroup.objects.get(id=groupId)
-        if not user in group.members.all():
+        if user in group.members.all():
+            serializer.save(writer=user, group=group)
+        else:
             raise Http404
-        serializer.save(writer=user, group=group)
 
 
 class StudyGroupFileList(generics.ListCreateAPIView): # group_files?groupId=<groupId>
+    # GET get StudyGroup(id=groupId)'s file list
+    serializer_class = StudyFileSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            return StudyFile.objects.filter(group=group)
+        else:
+            raise Http404
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            serializer.save(owner=user, group=group)
+        else:
+            raise Http404
 
 
 class StudyGroupTestList(generics.ListCreateAPIView): # group_tests?groupId=<groupId>
+    # GET get StudyGroup(id=groupId)'s file list
+    serializer_class = StudyTestSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            return StudyTest.objects.filter(group=group)
+        else:
+            raise Http404
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            serializer.save(owner=user, group=group)
+        else:
+            raise Http404
 
 
 class PolicyList(generics.ListCreateAPIView): # policies?groupId=<groupId>
+    # GET
+    serializer_class = PolicySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            return Policy.objects.filter(group=gropup)
+        else:
+            raise Http404
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            serializer.save(group=group)
 
 
-class PolicyDetail(generics.ListCreateAPIView): # policies/<int:pk>?groupId=<groupId>
+class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>?groupId=<groupId>
+    serializer_class = PolicySerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 
@@ -205,7 +267,7 @@ class AttendanceCreate(generics.CreateAPIView): # attendances?meetingId=<meeting
     otherwise, create an new attendance instance.
     '''
     def perform_create(self, serializer):
-        user=User.objects.filter(id=self.request.data['userId'])[0]
+        user = User.objects.filter(id=self.request.data['userId'])[0]
         meeting = StudyMeeting.objects.filter(id=self.request.data['meetingId'])[0]
         attendances = Attendance.objects.filter(user=user, meeting=meeting)
         if attendances:
@@ -215,18 +277,77 @@ class AttendanceCreate(generics.CreateAPIView): # attendances?meetingId=<meeting
 
 
 class StudyMeetingFileList(generics.ListCreateAPIView): # meeting_files?meetingId=<meetingId>
+    # GET get StudyMeeting(id=meetingId)'s file list
+    serializer_class = StudyFileSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        meetingId = self.request.query_params.get('meetingId', None)
+        meeting = StudyMeeting.objects.get(id=meetingId)
+        if user in meeting.members.all():
+            return StudyFile.objects.filter(meeting=meeting)
+        else:
+            raise Http404
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        meetingId = self.request.query_params.get('meetingId', None)
+        meeting = StudyMeeting.objects.get(id=meetingId)
+        if user in meeting.members.all():
+            serializer.save(owner=user, meeting=meeting)
+        else:
+            raise Http404
 
 
 class StudyMeetingTestList(generics.ListCreateAPIView): # meeting_tests?meetingId=<meetingId>
+    # GET get StudyMeeting(id=meetingId)'s file list
+    serializer_class = StudyTestSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        meetingId = self.request.query_params.get('meetingId', None)
+        meeting = StudyMeeting.objects.get(id=meetingId)
+        if user in meeting.members.all():
+            return StudyTest.objects.filter(meeting=meeting)
+        else:
+            raise Http404
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        meetingId = self.request.query_params.get('meetingId', None)
+        meeting = StudyMeeting.objects.get(id=meetingId)
+        if user in meeting.members.all():
+            serializer.save(owner=user, meeting=meeting)
+        else:
+            raise Http404
 
 
 
 #################################################################
 # ETC
 class StudyFileDetail(generics.RetrieveUpdateDestroyAPIView): # files/<int:pk>/
+    serializer_class = StudyTestSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def perform_destroy(self, request, *argc, **kwargs):
+        user = self.request.user
+        studyfile = StudyFile.objects.get(pk=self.kwargs['pk'])
+        if studyfile.owner == user:
+            studyfile.delete()
+        else:
+            raise Http404
 
 
 class StudyTestDetail(generics.RetrieveUpdateDestroyAPIView): # tests/<int:pk>/
+    serializer_class = StudyTestSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-
-
+    def perform_destroy(self, request, *argc, **kwargs):
+        user = self.request.user
+        studytest = StudyTest.objects.get(pk=self.kwargs['pk'])
+        if studytest.owner == user:
+            studytest.delete()
+        else:
+            raise Http404
