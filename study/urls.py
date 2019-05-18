@@ -9,6 +9,7 @@ urlpatterns = [
     path('study_groups/', StudyGroupList.as_view()),
     path('study_groups/<int:pk>/', StudyGroupDetail.as_view()),
     path('join_study_group/<int:pk>/', JoinStudyGroup.as_view()),
+    path('exit_study_group/<int:pk>/', ExitStudyGroup.as_view()),
     path('study_meetings/', StudyMeetingList.as_view()),
     path('study_meetings/<int:pk>/', StudyMeetingDetail.as_view()),
     path('attendances/', AttendanceCreate.as_view()),
