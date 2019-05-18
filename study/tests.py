@@ -54,10 +54,10 @@ class GroupTestCase(APITestCase):
         self.login(USERS_INFO[0])
 
         for GROUP_INFO in GROUPS_INFO:
-            response = self.post('/study_groups/', GROUP_INFO)
+            response = self.post('/groups/', GROUP_INFO)
             self.assertEqual(response.status_code, 201)
 
-        response = self.get('/study_groups/')
+        response = self.get('/groups/')
         self.assertEqual(response.status_code, 200)
         for i, GROUP_INFO in enumerate(GROUPS_INFO):
             for key_value in GROUP_INFO.items():
@@ -93,8 +93,8 @@ class MeetingTestCase(APITestCase):
         return self.client.post(path, data, **self.header())
     
     def create_group(self, group_info):
-        self.post('/study_groups/', group_info)
-        return self.get('/study_groups/')
+        self.post('/groups/', group_info)
+        return self.get('/groups/')
     
     def test_create_meeting(self):
         self.login(USERS_INFO[0])
@@ -105,10 +105,10 @@ class MeetingTestCase(APITestCase):
 
         for MEETING_INFO in MEETINGS_INFO:
             data = dict(list(MEETING_INFO.items()) + [('groupId',group_id)])
-            response = self.post('/study_meetings/', data)
+            response = self.post('/meetings/', data)
             self.assertEqual(response.status_code, 201)
 
-        response = self.get('/study_meetings/?groupId={}'.format(group_id))
+        response = self.get('/meetings/?groupId={}'.format(group_id))
         self.assertEqual(response.status_code, 200)
 
 
@@ -138,8 +138,8 @@ class AttendanceTest(APITestCase):
         return self.client.put(path, **self.header())
 
     def create_group(self, group_info):
-        self.post('/study_groups/', group_info)
-        return self.get('/study_groups/')
+        self.post('/groups/', group_info)
+        return self.get('/groups/')
     
     def create_meeting(self):
         self.login(USERS_INFO[0])
@@ -150,7 +150,7 @@ class AttendanceTest(APITestCase):
 
         for MEETING_INFO in MEETINGS_INFO:
             data = dict(list(MEETING_INFO.items()) + [('groupId',group_id)])
-            response = self.post('/study_meetings/', data)
+            response = self.post('/meetings/', data)
 
     def test_create_attendance(self):
         
