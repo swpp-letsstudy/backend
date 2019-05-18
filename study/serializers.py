@@ -8,34 +8,44 @@ class StudyUserRegisterSerializer(serializers.ModelSerializer):
         fields = ('username', 'password', 'info')
 
 
+# For debuging
 class StudyUserSerializer(serializers.ModelSerializer):
-    study_groups_own = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    study_groups_join = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    group_notices = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    study_groups_own = serializers.StringRelatedField(many=True, read_only=True)
+    study_groups_join = serializers.StringRelatedField(many=True, read_only=True)
+    group_notices = serializers.StringRelatedField(many=True, read_only=True)
     fines = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    study_meetings = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    meeting_notices = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    attendences = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    study_meetings = serializers.StringRelatedField(many=True, read_only=True)
+    meeting_notices = serializers.StringRelatedField(many=True, read_only=True)
+    attendances = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     files = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     tests = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
-        model = StudyUser
+        model = User
         fields = ('id', 'username', 'study_groups_own', 'study_groups_join', 'group_notices', 'fines', 'study_meetings', 'meeting_notices', 'attendances', 'files', 'tests')
 
 
+class StudyUserSettingSerializer(serializers.ModelSerializer):
+    user = StudyUserSerializer(read_only=True)
+
+    class Meta:
+        model = StudyUserSetting
+        fields = ('id', 'user', 'info')
+
+
 class StudyGroupSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    members = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    notices = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    policies = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    meetings = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    files = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    tests = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    owner = serializers.StringRelatedField(read_only=True)
+    members = serializers.StringRelatedField(many=True, read_only=True)
+    notices = serializers.StringRelatedField(many=True, read_only=True)
+    # policies = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # meetings = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # files = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # tests = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = StudyGroup
-        fields = ('id', 'name', 'info', 'owner', 'members', 'notices', 'policies', 'meetings', 'files', 'tests')
+        fields = ('id', 'name', 'info', 'owner', 'members', 'notices')
+        # , 'policies', 'meetings', 'files', 'tests'
 
 
 class StudyGroupNoticeSerializer(serializers.ModelSerializer):
