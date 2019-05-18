@@ -13,8 +13,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
 
+#################################################################
+# Without Login
 class MyLoginView(ObtainAuthToken): # login/
-    # POST { username, password }
+    # POST { username, password }, login and return { token, username, id }
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -28,18 +30,23 @@ class MyLoginView(ObtainAuthToken): # login/
 
 
 # class LogoutView:   in rest_auth.views.LogoutView # logout/
-#     # POST
+#     # POST, logout
 #     def post...
 
 
 class MyRegisterView(APIView): # register/
-    # POST { username, password }
+    # POST { username, password }, register
     def post(self, request, *args, **kwargs):
         if 'username' in request.data.keys() and 'password' in request.data.keys():
-            if User.objects.filter(username=request.data['username']).count() == 0:
-                User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])
-                return Response('successed', status=201)
-            return Response('username exists', status=409)
+            if User.objects.filter(username=request.data['username']).exists():
+                return Response('username already exists', status=409)
+
+            user = User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])
+            if 'info' in request.data.keys():
+                studyuser = StudyUser.objects.get(user=user)
+                studyuser.info = request.data['info']
+                studyuser.save()
+            return Response('successed', status=201)
         else:
             raise Http404
 
@@ -50,8 +57,39 @@ class MyRegisterView(APIView): # register/
 # Need Login (with Auth header) #
 #################################
 
-class StudyGroupList(generics.ListCreateAPIView): # study_groups/
-    # GET, POST { name, info }
+#################################################################
+# User
+class MySignOutView(APIView): # signout/
+    # POST, signout
+    def post(self, request, *args, **kwargs):
+        request.user.delete()
+
+
+class StudyUserSettingView(APIView): # setting/
+    # GET get request.user's StudyUserSetting return { [user], info }
+    def get(self, request, format=None):
+        studyusersetting = StudyUserSetting.objects.get(user=request.user)
+        serializer = StudyUserSettingSerializer(studyusersetting)
+        return Response(serializer.data)
+
+    # PUT { [user], info }, update request.user's StudyUserSetting and return updated setting
+    def put(self, request, format=None):
+        studyusersetting = StudyUserSetting.objects.get(user=request.user)
+        serializer = StudyUserSettingSerializer(studyusersetting, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            raise Http404
+
+
+
+
+#################################################################
+# Group
+class StudyGroupList(generics.ListCreateAPIView): # groups/
+    # GET get request.user's StudyGroups
+    # POST { name, info }, create request.user's StudyGroup
     serializer_class = StudyGroupSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -65,14 +103,16 @@ class StudyGroupList(generics.ListCreateAPIView): # study_groups/
             serializer.save(owner=user, members=[user])
 
 
-class StudyGroupDetail(generics.RetrieveDestroyAPIView): # study_groups/<int:pk>/
-    # GET, PUT, DELETE
+class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
+    # GET get StudyGroup(pk=pk)'s detail
+    # PUT update StudyGroup(pk=pk)'s detail
+    # DELETE delete StudyGroup(pk=pk) when request.user is owner
+    #                                 else remove request.user in members
     permission_classes = (permissions.IsAuthenticated, IsMember)
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
 
-    def perform_destroy(self, request, *argc, **kwargs):
-        pk = self.kwargs.get('pk')
+    def perform_destroy(self, request, pk, *argc, **kwargs):
         user = self.request.user
         studygroup = StudyGroup.objects.get(pk=pk)
         if studygroup.owner == user:
@@ -84,8 +124,8 @@ class StudyGroupDetail(generics.RetrieveDestroyAPIView): # study_groups/<int:pk>
         return Response(serializer.data)
 
 
-class JoinStudyGroup(APIView): # join_study_group?token=<token>
-    # GET
+class JoinStudyGroup(APIView): # join_group?token=<token>
+    # GET add request.user in StudyGroup(pk=f(token)).members
     def get(self, request, format=None):
         token = parse_qs(self.request.GET.urlencode())['token'][0]
         pk = token # Need to do something more
@@ -97,25 +137,9 @@ class JoinStudyGroup(APIView): # join_study_group?token=<token>
         return Response(serializer.data)
 
 
-class StudyUserSettingView(APIView): # user_setting/
-    # GET, PUT { [user_setting] }
-    def get(self, request, format=None):
-        studyusersetting = StudyUserSetting.objects.get(user=request.user)
-        serializer = StudyUserSettingSerializer(studyusersetting)
-        return Response(serializer.data)
-
-    def put(self, request, format=None):
-        studyusersetting = StudyUserSetting.objects.get(user=request.user)
-        serializer = StudyUserSettingSerializer(studyusersetting, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            raise Http404
-
-
-class StudyGroupNoticeList(generics.ListCreateAPIView): # study_notices?groupId=<groupId>
-    # GET, POST { title, contents }
+class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=<groupId>
+    # GET get StudyGroup(id=groupId)'s StudyGroupNotices
+    # POST { title, contents } create request.user's StudyGroupNotice
     serializer_class = StudyGroupNoticeSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -135,7 +159,24 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # study_notices?groupId=
         serializer.save(writer=user, group=group)
 
 
-class StudyMeetingList(generics.ListCreateAPIView):
+class StudyGroupFileList(generics.ListCreateAPIView): # group_files?groupId=<groupId>
+
+
+class StudyGroupTestList(generics.ListCreateAPIView): # group_tests?groupId=<groupId>
+
+
+class PolicyList(generics.ListCreateAPIView): # policies?groupId=<groupId>
+
+
+class PolicyDetail(generics.ListCreateAPIView): # policies/<int:pk>?groupId=<groupId>
+
+
+
+#################################################################
+# Meeting
+class StudyMeetingList(generics.ListCreateAPIView): # meetings/
+    # GET get StudyMeeting
+    # POST { time, info }
     serializer_class = StudyMeetingSerializer
 
     def get_queryset(self):
@@ -149,13 +190,13 @@ class StudyMeetingList(generics.ListCreateAPIView):
         serializer.save(group=group)
 
 
-class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView):
+class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int:pk>
     permission_classes = (permissions.IsAuthenticated, IsMeetingUser)
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer
 
 
-class AttendanceCreate(generics.CreateAPIView):
+class AttendanceCreate(generics.CreateAPIView): # attendances?meetingId=<meetingId>
     serializer_class = AttendanceSerializer
     '''
     { userId, meetingId } => toggle attendance 
@@ -171,3 +212,21 @@ class AttendanceCreate(generics.CreateAPIView):
             attendances.delete()
         else:
             serializer.save(meeting=meeting, user=user)
+
+
+class StudyMeetingFileList(generics.ListCreateAPIView): # meeting_files?meetingId=<meetingId>
+
+
+class StudyMeetingTestList(generics.ListCreateAPIView): # meeting_tests?meetingId=<meetingId>
+
+
+
+#################################################################
+# ETC
+class StudyFileDetail(generics.RetrieveUpdateDestroyAPIView): # files/<int:pk>/
+
+
+class StudyTestDetail(generics.RetrieveUpdateDestroyAPIView): # tests/<int:pk>/
+
+
+

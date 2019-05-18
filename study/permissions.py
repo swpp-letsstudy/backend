@@ -1,7 +1,4 @@
 from rest_framework import permissions
-from urllib.parse import parse_qs
-
-from study.models import StudyGroup
 
 
 class IsMember(permissions.BasePermission):

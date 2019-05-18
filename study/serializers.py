@@ -2,13 +2,6 @@ from rest_framework import serializers
 from study.models import *
 
 
-class StudyUserRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'info')
-
-
-# For debuging
 class StudyUserSerializer(serializers.ModelSerializer):
     study_groups_own = serializers.StringRelatedField(many=True, read_only=True)
     study_groups_join = serializers.StringRelatedField(many=True, read_only=True)
