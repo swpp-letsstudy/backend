@@ -106,7 +106,7 @@ class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
     # GET get StudyGroup(pk=pk)'s detail
     # PUT update StudyGroup(pk=pk)'s detail
     # DELETE delete StudyGroup(pk=pk) when request.user is owner
-    #                                 else remove request.user in members
+      #                               else remove request.user in members
     permission_classes = (permissions.IsAuthenticated, IsMember)
     queryset = StudyGroup.objects.all()
     serializer_class = StudyGroupSerializer
@@ -160,6 +160,7 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=
 
 class StudyGroupFileList(generics.ListCreateAPIView): # group_files?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s file list
+    # POST { filepath }
     serializer_class = StudyFileSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -184,6 +185,7 @@ class StudyGroupFileList(generics.ListCreateAPIView): # group_files?groupId=<gro
 
 class StudyGroupTestList(generics.ListCreateAPIView): # group_tests?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s file list
+    # POST { title }
     serializer_class = StudyTestSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -207,7 +209,7 @@ class StudyGroupTestList(generics.ListCreateAPIView): # group_tests?groupId=<gro
 
 
 class PolicyList(generics.ListCreateAPIView): # policies?groupId=<groupId>
-    # GET
+    # GET get StudyGroup(id=groupId)'s Policies
     serializer_class = PolicySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -229,8 +231,29 @@ class PolicyList(generics.ListCreateAPIView): # policies?groupId=<groupId>
 
 
 class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>?groupId=<groupId>
+    # GET get PolicySerializer(Policy(pk=pk)).data
+    # PUT update Policy(pk=pk) with request.data
+    # DELETE if user is owner of group of policy, delete
     serializer_class = PolicySerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        policy = Policy.objects.get(pk=self.kwargs['pk'])
+        serializer = PolicySerializer(policy, data=self.request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            raise Http404
+
+    def perform_destroy(self, request, *argc, **kwargs):
+        user = self.request.user
+        policy = Policy.objects.get(pk=self.kwargs['pk'])
+        if policy.group.owner == user:
+            policy.delete()
+        else:
+            raise Http404
 
 
 
