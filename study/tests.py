@@ -77,6 +77,13 @@ class GroupTestCase(APITestCase):
             for key_value in GROUP_INFO.items():
                 self.assertIn(key_value, response.data[i].items())
 
+# class GroupJoinTestCase(APITestCase):
+
+#     def test_join_group(self):
+#         for USER_INFO in USERS_INFO:
+#             for study_join in StudyGroup.objects.all():
+#                 response = self.client.get('/join_group/?token={}'.format(study_join.id))
+#                 self.assertEqual(response.status_code, 200)
 
 MEETINGS_INFO = [{
     'time': datetime.now(timezone.utc).replace(
