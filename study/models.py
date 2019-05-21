@@ -151,13 +151,3 @@ class StudyTest(models.Model):
     owner = models.ForeignKey(User, related_name='tests', on_delete=models.CASCADE, null=True)
     group = models.ForeignKey(StudyGroup, related_name='tests', on_delete=models.CASCADE, null=True)
     meeting = models.ForeignKey(StudyMeeting, related_name='tests', on_delete=models.CASCADE, null=True)
-
-
-class Message(models.Model):
-    class Meta:
-        ordering = ('created',)
-
-    created = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, related_name='messages', on_delete=models.CASCADE)
-    study_group = models.ForeignKey(StudyGroup, related_name='messages', on_delete=models.CASCADE)
-    content = models.TextField()
