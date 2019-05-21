@@ -262,3 +262,6 @@ pip-selfcheck.json
 
 # PyCharm
 .idea
+
+# RedisDatabase
+dump.rdb
