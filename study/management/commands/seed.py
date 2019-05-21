@@ -61,7 +61,8 @@ class Command(BaseCommand):
                 StudyMeeting.objects.create(
                     time=datetime.datetime.now(pytz.utc),
                     info='meeting info',
-                    group=study_group)
+                    group=study_group
+                ).members.set(study_group.members.all())
 
 
     def handle(self, *args, **options):
