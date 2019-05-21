@@ -1,4 +1,3 @@
-from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 
@@ -15,24 +14,37 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, content):
         study_group_id = content['groupId']
         token = content['token']
+        command = content['command']
 
+        self.validate_user(token)
+
+        # Use StudyGroup.id as a channel_layer group name
+        group_name = str(study_group_id)
+
+        if command == 'join':
+            await self.join(group_name)
+        elif command == 'message':
+            await self.message_to_group(group_name, content)
+
+    async def validate_user(self, token):
         if not self.isLoggedIn:
             if Token.objects.filter(key=token).exists():
                 self.isLoggedIn = True
             else:
                 self.close()
 
-        # Use StudyGroup.id as a channel_layer group name
-        group_name = str(study_group_id)
-        if group_name not in self.group_names:
-            if StudyGroup.objects.filter(id=study_group_id).exists():
-                await self.add_channel_to_group(group_name)
-                self.group_names.add(group_name)
-            else:
-                await self.send_error('The groupId is not valid: {}'.format(study_group_id))
-                return
+    def group_name(self, study_group_id):
+        return str(study_group_id)
 
-        await self.message_to_group(group_name, content)
+    async def join(self, study_group_id):
+        group_name = self.group_name(study_group_id)
+        if group_name in self.group_names:
+            await self.send_error('Already in the group: {}'.format(study_group_id))
+        elif StudyGroup.objects.filter(id=study_group_id).exists():
+            await self.add_channel_to_group(group_name)
+            self.group_names.add(group_name)
+        else:
+            await self.send_error('The groupId is not valid: {}'.format(study_group_id))
 
     async def send_error(self, error_msg):
         await self.send_json({'error': error_msg})
