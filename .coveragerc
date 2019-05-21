@@ -4,3 +4,4 @@ source=
     study
 omit=
     backend/wsgi.py
+    venv/
