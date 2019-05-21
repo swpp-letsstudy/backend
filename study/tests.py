@@ -76,14 +76,20 @@ class GroupTestCase(APITestCase):
         for i, GROUP_INFO in enumerate(GROUPS_INFO):
             for key_value in GROUP_INFO.items():
                 self.assertIn(key_value, response.data[i].items())
+    
 
-# class GroupJoinTestCase(APITestCase):
+    def test_join_group(self):
+        self.login(USERS_INFO[0])
 
-#     def test_join_group(self):
-#         for USER_INFO in USERS_INFO:
-#             for study_join in StudyGroup.objects.all():
-#                 response = self.client.get('/join_group/?token={}'.format(study_join.id))
-#                 self.assertEqual(response.status_code, 200)
+        for GROUP_INFO in GROUPS_INFO:
+            response = self.post('/groups/', GROUP_INFO)
+            self.assertEqual(response.status_code, 201)
+    
+        for USER_INFO in USERS_INFO:
+            self.login(USER_INFO)
+            for study_join in StudyGroup.objects.all():
+                response = self.get('/join_group/?token={}'.format(study_join.id))
+                self.assertEqual(response.status_code, 200)
 
 MEETINGS_INFO = [{
     'time': datetime.now(timezone.utc).replace(
