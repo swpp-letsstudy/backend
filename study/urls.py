@@ -21,7 +21,7 @@ urlpatterns += [
     path('groups/<int:pk>/', StudyGroupDetail.as_view()),               # GET, PUT, DELETE
     path('join_group/', JoinStudyGroup.as_view()),                      # GET
     path('group_notices/', StudyGroupNoticeList.as_view()),             # GET, POST
-    path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),    # GET, POST
+    path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),  # GET, POST
     path('group_files/', StudyGroupFileList.as_view()),                 # GET, POST
     path('group_tests/', StudyGroupTestList.as_view()),                 # 
     path('policies/', PolicyList.as_view()),                            # 

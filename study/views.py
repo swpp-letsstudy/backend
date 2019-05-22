@@ -156,6 +156,7 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=
             serializer.save(writer=user, group=group)
         else:
             raise Http404
+            
 
 class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView):
     # GET
