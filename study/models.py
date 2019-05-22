@@ -151,4 +151,3 @@ class StudyTest(models.Model):
     owner = models.ForeignKey(User, related_name='tests', on_delete=models.CASCADE, null=True)
     group = models.ForeignKey(StudyGroup, related_name='tests', on_delete=models.CASCADE, null=True)
     meeting = models.ForeignKey(StudyMeeting, related_name='tests', on_delete=models.CASCADE, null=True)
-

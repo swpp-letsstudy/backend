@@ -144,7 +144,7 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=
     def get_queryset(self):
         groupId = self.request.query_params.get('groupId', None)
         group = StudyGroup.objects.get(id=groupId)
-        if not self.request.user in group.members.a1ll():
+        if not self.request.user in group.members.all():
             raise Http404
         return StudyGroupNotice.objects.filter(group=group)
 
@@ -157,6 +157,26 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=
         else:
             raise Http404
 
+class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView):
+    # GET
+    # PUT
+    # DELETE
+    serializer_class = StudyGroupNoticeSerializer
+    queryset = StudyGroupNotice.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
+        if notice.writer != user:
+            raise HTtp404
+        serializer = StudyGroupSerializer(notice, data=self.request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            raise Http404
+        
 
 class StudyGroupFileList(generics.ListCreateAPIView): # group_files?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s file list
