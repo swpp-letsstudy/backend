@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 
-from study.models import StudyGroup
+from study.study_groups.models import StudyGroup
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
