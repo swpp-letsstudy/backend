@@ -48,7 +48,7 @@ class StudyGroupSerializer(serializers.ModelSerializer):
 
 
 class StudyGroupNoticeSerializer(serializers.ModelSerializer):
-    writer = serializers.PrimaryKeyRelatedField(read_only=True)
+    writer = StudyUserSimpleSerializer(read_only=True)
     group = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
