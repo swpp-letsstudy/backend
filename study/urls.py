@@ -1,9 +1,17 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from django.conf.urls import include
-
 from rest_auth.views import LogoutView
-from study.views import *
+
+from study.users.views import MyLoginView, MyRegisterView, MySignOutView
+from study.study_user_settings.views import StudyUserSettingView
+from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup
+from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoticeDetail
+from study.study_files.views import StudyGroupFileList, StudyMeetingFileList, StudyFileDetail
+from study.study_tests.views import StudyGroupTestList, StudyMeetingTestList, StudyTestDetail
+from study.policies.views import PolicyList, PolicyDetail
+from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
+from study.attendances.views import AttendanceCreate
+
 
 # Don't need Login
 urlpatterns = [
