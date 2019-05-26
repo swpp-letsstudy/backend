@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from study.study_users.models import *
+from study.study_users.models import StudyUser
 
 
 class MyLoginView(ObtainAuthToken): # login/

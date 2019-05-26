@@ -26,22 +26,22 @@ urlpatterns += [
 
     path('groups/', StudyGroupList.as_view()),                              # GET, POST
     path('groups/<int:pk>/', StudyGroupDetail.as_view()),                   # GET, PUT, DELETE
-    path('join_group/', JoinStudyGroup.as_view()),                          # GET
+    path('join_group/', JoinStudyGroup.as_view()),                          # GET, ?token=<token>
 
-    path('group_notices/', StudyGroupNoticeList.as_view()),                 # GET, POST
-    path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),      # GET, POST
+    path('group_notices/', StudyGroupNoticeList.as_view()),                 # GET, POST ?groupId=<groupId>
+    path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),      # GET, PUT, DELETE ?groupId=<groupId>
 
-    path('meetings/', StudyMeetingList.as_view()),                          # GET, POST
-    path('meetings/<int:pk>/', StudyMeetingDetail.as_view()),               # GET, PUT, DELETE
+    path('meetings/', StudyMeetingList.as_view()),                          # GET, POST ?groupId=<groupId>
+    path('meetings/<int:pk>/', StudyMeetingDetail.as_view()),               # GET, PUT, DELETE ?groupId=<groupId>
 
-    path('meeting_notices/', StudyMeetingNoticeList.as_view()),             # GET, POST
-    path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, PUT, DELETE
+    path('meeting_notices/', StudyMeetingNoticeList.as_view()),             # GET, POST ?meetingId=<meetingId>
+    path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, PUT, DELETE ?meetingId=<meetingId>
     
     path('attendances/', AttendanceView.as_view()),                         # POST
-    path('policies/', PolicyList.as_view()),                                # GET, POST
-    path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE
-    path('meeting_fines/', MeetingFineList.as_view()),                      # GET, POST
-    path('meeting_fines/<int:pk>/', MeetingFineDetail.as_view()),           # GET, PUT, DELETE
+    path('policies/', PolicyList.as_view()),                                # GET, POST ?groupId=<groupId>
+    path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE ?groupId=<groupId>
+    path('meeting_fines/', MeetingFineList.as_view()),                      # GET, POST ?meetingId=<meetingId>
+    path('meeting_fines/<int:pk>/', MeetingFineDetail.as_view()),           # GET, PUT, DELETE ?meetingId=<meetingId>
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

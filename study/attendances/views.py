@@ -6,7 +6,7 @@ from .models import Attendance
 from .serializers import AttendanceSerializer
 
 
-class AttendanceView(generics.CreateAPIView): # attendances?meetingId=<meetingId>
+class AttendanceView(generics.CreateAPIView): # attendances/
     serializer_class = AttendanceSerializer
     '''
     { userId, meetingId } => toggle attendance 
