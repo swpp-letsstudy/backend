@@ -1,4 +1,4 @@
-from urllib.parse import parse_qs
+from django.http import Http404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -12,16 +12,21 @@ class StudyMeetingList(generics.ListCreateAPIView): # meetings/
     # GET get StudyMeeting
     # POST { time, info }
     serializer_class = StudyMeetingSerializer
+
     def get_queryset(self):
         user = self.request.user
-        groupId = parse_qs(self.request.GET.urlencode())['groupId'][0]
+        groupId = self.request.query_params.get('groupId', None)
         study_groups = StudyGroup.objects.filter(members__in=[user], id=groupId)
         return StudyMeeting.objects.filter(group__in=study_groups)
 
     def perform_create(self, serializer):
         user = self.request.user
-        group = StudyGroup.objects.filter(id=self.request.data['groupId'])[0]
-        serializer.save(group=group, members=[user])
+        groupId = self.request.query_params.get('groupId', None)
+        group = StudyGroup.objects.get(id=groupId)
+        if user in group.members.all():
+            serializer.save(group=group, members=[user])
+        else:
+            raise Http404
 
 
 class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int:pk>

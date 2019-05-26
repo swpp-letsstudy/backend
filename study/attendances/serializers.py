@@ -6,7 +6,7 @@ from study.study_meetings.serializers import StudyMeetingSerializer
 
 class AttendanceSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
-    meeting = StudyMeetingSerializer(read_only=True)
+    meeting = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Attendance

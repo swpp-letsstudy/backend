@@ -1,15 +1,16 @@
+from django.http import Http404
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.http import Http404
 
 from .serializers import PolicySerializer
 from .models import Policy
 from study.study_groups.models import StudyGroup
 
 
-class PolicyList(generics.ListCreateAPIView): # policies?groupId=<groupId>
+class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s Policies
+    # POST 
     serializer_class = PolicySerializer
     permission_classes = (IsAuthenticated,)
 
@@ -54,3 +55,14 @@ class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>?g
             policy.delete()
         else:
             raise Http404
+
+
+class MeetingFineList(generics.ListCreateAPIView):
+    def get_queryset(self):
+        pass
+    
+
+class MeetingFineDetail(generics.RetrieveUpdateDestroyAPIView):
+    def get_queryset(self):
+        pass
+        

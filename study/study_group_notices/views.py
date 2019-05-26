@@ -9,7 +9,7 @@ from study.study_groups.models import StudyGroup
 from study.study_groups.serializers import StudyGroupSerializer
 
 
-class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=<groupId>
+class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices/?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s StudyGroupNotices
     # POST { title, contents } create request.user's StudyGroupNotice
     serializer_class = StudyGroupNoticeSerializer
@@ -32,7 +32,7 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices?groupId=
             raise Http404
 
 
-class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView):
+class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView): # group_notices/<int:pk>/?groupId=<groupId>
     # GET
     # PUT
     # DELETE
@@ -40,7 +40,7 @@ class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView):
     queryset = StudyGroupNotice.objects.all()
     permission_classes = (IsAuthenticated,)
 
-    def perform_create(self, serializer):
+    def perform_update(self, serializer):
         user = self.request.user
         notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
         if notice.writer != user:
@@ -49,5 +49,13 @@ class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        else:
+            raise Http404
+
+    def perform_destroy(self, request, *argc, **kwargs):
+        user = self.request.user
+        notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
+        if notice.writer == user:
+            notice.delete()
         else:
             raise Http404

@@ -42,13 +42,15 @@ class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
             studygroup.members.remove(user)
 
 
-class JoinStudyGroup(APIView): # join_group?token=<token>
+class JoinStudyGroup(APIView): # join_group/?token=<token>
     # GET add request.user in StudyGroup(pk=f(token)).members
     def get(self, request, format=None):
         token = self.request.query_params.get('token', None)
         if token is None:
             raise Http404
         pk = token # Need to do something more
+        if not StudyGroup.objects.filter(pk=pk).exists():
+            raise Http404
         studygroup = StudyGroup.objects.get(pk=pk)
         studygroup.members.add(request.user)
         studygroup.save()

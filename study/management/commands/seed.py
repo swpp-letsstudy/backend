@@ -2,16 +2,13 @@ import datetime, pytz, subprocess, sys, os, random
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from study.study_user_settings.models import StudyUserSetting
+from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
 from study.study_group_notices.models import StudyGroupNotice
 from study.policies.models import Policy
-from study.fines.models import Fine
 from study.study_meetings.models import StudyMeeting
 from study.attendances.models import Attendance
 from study.study_meeting_notices.models import StudyMeetingNotice
-from study.study_files.models import StudyFile
-from study.study_tests.models import StudyTest
 
 
 class Command(BaseCommand):
@@ -53,13 +50,13 @@ class Command(BaseCommand):
             )
         self.users = User.objects.all()[1:]
 
-    def create_user_settings(self):
-        print("Modify StudyUserSettings")
+    def create_users(self):
+        print("Modify StudyUsers")
         for user in User.objects.all():
-            study_user_setting = StudyUserSetting.objects.get(user=user)
-            study_user_setting.info = 'info %s' % user.username
-            study_user_setting.save()
-        self.study_user_settings = StudyUserSetting.objects.all()
+            study_user = StudyUser.objects.get(user=user)
+            study_user.info = 'info %s' % user.username
+            study_user.save()
+        self.study_users = StudyUser.objects.all()
 
     def create_groups(self):
         print("Create StudyGroups")
@@ -97,16 +94,6 @@ class Command(BaseCommand):
                 )
         self.policies = Policy.objects.all()
 
-    def create_fines(self):
-        print("Create Fines")
-        for policy in self.policies:
-            for user in policy.group.members.all():
-                Fine.objects.create(
-                    amount=random.randrange(1, 10),
-                    user=user,
-                    policy=policy
-                )
-
     def create_meetings(self):
         print("Create StudyMeetings")
         for study_group in StudyGroup.objects.all():
@@ -137,41 +124,16 @@ class Command(BaseCommand):
                     user=user,
                     meeting=meeting
                 )
-    
-    def create_files(self):
-        print("Create StudyFiles")
-        for group in self.study_groups:
-            for user in group.members.all():
-                StudyFile.objects.create(
-                    filepath='/file/%s/%s/%d.txt' % (group.name, user.username, random.randrange(1, 10)),
-                    owner=user,
-                    group=group
-                )
-
-    def create_tests(self):
-        print("Create StudyTests")
-        for group in self.study_groups:
-            for meeting in group.meetings.all():
-                for user in meeting.members.all():
-                    StudyTest.objects.create(
-                        title='title %d %d %s' % (group.id, meeting.id, user.username),
-                        owner=user,
-                        group=group,
-                        meeting=meeting
-                    )
 
     def handle(self, *args, **options):
         self.delete_database()
         self.migrate_database()
         self.create_superuser()
         self.create_users()
-        self.create_user_settings()
+        self.create_users()
         self.create_groups()
         self.create_group_notices()
         self.create_policies()
-        self.create_fines()
         self.create_meetings()
         self.create_meeting_notices()
         self.create_attendances()
-        self.create_files()
-        self.create_tests()
