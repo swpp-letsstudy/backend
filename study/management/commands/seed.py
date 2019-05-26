@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
 from study.study_group_notices.models import StudyGroupNotice
-from study.policies.models import Policy
 from study.study_meetings.models import StudyMeeting
-from study.attendances.models import Attendance
 from study.study_meeting_notices.models import StudyMeetingNotice
+from study.attendances.models import Attendance
+from study.policies.models import Policy, MeetingFine, Fine
 
 
 class Command(BaseCommand):
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             email='superuser@superuser.com',
             password='1234'
         )
-        self.superuser = User.objects.all()[0]
+        self.superuser = User.objects.get(username='superuser')
 
     def create_users(self):
         print("Create Users")
@@ -48,60 +48,53 @@ class Command(BaseCommand):
                 email='a%d@a.com' % i,
                 password='1234'
             )
-        self.users = User.objects.all()[1:]
+        self.users = User.objects.filter(username__startswith='user')
 
-    def create_users(self):
+    def modify_studyusers(self):
         print("Modify StudyUsers")
-        for user in User.objects.all():
+        for user in self.users:
+            i = user.username[-1]
             study_user = StudyUser.objects.get(user=user)
-            study_user.info = 'info %s' % user.username
+            study_user.nickname = 'nickname%c' % i
             study_user.save()
-        self.study_users = StudyUser.objects.all()
+        self.study_users = StudyUser.objects.filter(user__in=self.users)
 
     def create_groups(self):
         print("Create StudyGroups")
-        for i in range(1, 6):
-            user = User.objects.get(id=i+1)
+        for user in self.study_users:
+            i = user.nickname[-1]
             study_group = StudyGroup.objects.create(
-                name='group%d' % i,
-                info='info group%d' % i,
+                name='group%c' % i,
+                info='group%c info' % i,
                 owner=user,
             ).members.set([user])
         for i in range(1, 6):
-            user = User.objects.get(id=i%5+2)
-            study_group = StudyGroup.objects.get(id=i)
-            study_group.members.add(user)
+            study_group = StudyGroup.objects.get(name='group%d'%i)
+            study_user = StudyUser.objects.get(nickname='nickname%d'%(i%5+1))
+            study_group.members.add(study_user)
         self.study_groups = StudyGroup.objects.all()
 
     def create_group_notices(self):
         print("Create StudyGroupNotices")
         for study_group in self.study_groups:
             for user in study_group.members.all():
+                i = user.nickname[-1]
                 StudyGroupNotice.objects.create(
-                    title='title %s %s' % (study_group.name, user.username),
-                    contents='contents %s %s' % (study_group.name, user.username),
                     writer=user,
-                    group=study_group
+                    group=study_group,
+                    title='GroupNotice title%c' % i,
+                    contents='GroupNotice contents%c' % i
                 )
-
-    def create_policies(self):
-        print("Create Policies")
-        for study_group in self.study_groups:
-            for i in range(1, 3):
-                Policy.objects.create(
-                    name='name %s-%d' % (study_group.name, i),
-                    group=study_group
-                )
-        self.policies = Policy.objects.all()
 
     def create_meetings(self):
         print("Create StudyMeetings")
         for study_group in StudyGroup.objects.all():
             for user in study_group.members.all():
+                i = user.nickname[-1]
                 StudyMeeting.objects.create(
-                    time=datetime.datetime.now(pytz.utc),
-                    info='info %s %s' % (study_group.name, user.username),
-                    group=study_group
+                    group=study_group,
+                    time=datetime.datetime.now(pytz.utc).replace(second=0, microsecond=0),
+                    info='Meeting%c info' % i,
                 ).members.set(study_group.members.all())
         self.study_meetings = StudyMeeting.objects.all()
 
@@ -109,20 +102,42 @@ class Command(BaseCommand):
         print("Create StudyMeetingNotices")
         for meeting in self.study_meetings:
             for user in meeting.members.all():
+                i = user.nickname[-1]
                 StudyMeetingNotice.objects.create(
-                    title='title %s %s' % (meeting.group.name, user.username),
-                    contents='contents %s %s' % (meeting.group.name, user.username),
                     writer=user,
-                    meeting=meeting
+                    meeting=meeting,
+                    title='MeetingNotice title%c' % i,
+                    contents='MeetingNotice contents%c' % i
                 )
-    
-    def create_attendances(self):
-        print("Create Attendances")
-        for meeting in self.study_meetings:
-            for user in meeting.members.all():
-                Attendance.objects.create(
+
+    def create_policies(self):
+        print("Create Policies")
+        for study_group in self.study_groups:
+            Policy.objects.create(
+                group=study_group,
+                name='policy',
+                amount=random.randint(1, 3)
+            )
+        self.policies = Policy.objects.all()
+
+    def create_meeting_fines(self):
+        print("Create MeetingFines")
+        for study_meeting in self.study_meetings:
+            MeetingFine.objects.create(
+                name='MeetingFine%d' % study_meeting.id,
+                policy=study_meeting.group.policies.all()[0],
+                meeting=study_meeting
+            )
+        self.meeting_fines = MeetingFine.objects.all()
+
+    def create_fines(self):
+        print("Create Fines")
+        for meeting_fine in self.meeting_fines:
+            for user in meeting_fine.meeting.members.all():
+                Fine.objects.create(
+                    meeting_fine=meeting_fine,
                     user=user,
-                    meeting=meeting
+                    count=random.randint(1, 11)
                 )
 
     def handle(self, *args, **options):
@@ -130,10 +145,12 @@ class Command(BaseCommand):
         self.migrate_database()
         self.create_superuser()
         self.create_users()
-        self.create_users()
+        self.modify_studyusers()
         self.create_groups()
         self.create_group_notices()
-        self.create_policies()
         self.create_meetings()
         self.create_meeting_notices()
-        self.create_attendances()
+        self.create_policies()
+        self.create_meeting_fines()
+        self.create_fines()
+
