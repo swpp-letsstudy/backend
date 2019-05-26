@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
 from study.study_meetings.models import StudyMeeting
-from .models import POlicy, MeetingFine, Fine
-from .serializers import PolicySerializer
+from .models import Policy, MeetingFine, Fine
+from .serializers import PolicySerializer, MeetingFineSerializer
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
