@@ -16,7 +16,7 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices/?groupId
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        user = StudyUser.objects.get(user=request.user)
+        user = StudyUser.objects.get(user=self.request.user)
         groupId = self.request.query_params.get('groupId', None)
         group = StudyGroup.objects.get(id=groupId)
         if not user in group.members.all():

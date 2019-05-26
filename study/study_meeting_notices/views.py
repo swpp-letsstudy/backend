@@ -16,7 +16,7 @@ class StudyMeetingNoticeList(generics.ListCreateAPIView): # meeting_notices/?mee
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        user = StudyUser.objects.get(user=request.user)
+        user = StudyUser.objects.get(user=self.request.user)
         meetingId = self.request.query_params.get('meetingId', None)
         meeting = StudyMeeting.objects.get(id=meetingId)
         if not user in meeting.members.all():
