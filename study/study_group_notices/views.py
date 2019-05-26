@@ -3,10 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework.response import Response
 
-from .serializers import StudyGroupNoticeSerializer
-from .models import StudyGroupNotice
+from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
-from study.study_groups.serializers import StudyGroupSerializer
+from .models import StudyGroupNotice
+from .serializers import StudyGroupNoticeSerializer
 
 
 class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices/?groupId=<groupId>
@@ -16,20 +16,20 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices/?groupId
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
+        user = StudyUser.objects.get(user=request.user)
         groupId = self.request.query_params.get('groupId', None)
         group = StudyGroup.objects.get(id=groupId)
-        if not self.request.user in group.members.all():
+        if not user in group.members.all():
             raise Http404
         return StudyGroupNotice.objects.filter(group=group)
 
     def perform_create(self, serializer):
-        user = self.request.user
+        user = StudyUser.objects.get(user=self.request.user)
         groupId = self.request.query_params.get('groupId', None)
         group = StudyGroup.objects.get(id=groupId)
-        if user in group.members.all():
-            serializer.save(writer=user, group=group)
-        else:
+        if not user in group.members.all():
             raise Http404
+        serializer.save(writer=user, group=group)
 
 
 class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView): # group_notices/<int:pk>/?groupId=<groupId>
@@ -41,11 +41,11 @@ class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView): # group_notices/<
     permission_classes = (IsAuthenticated,)
 
     def perform_update(self, serializer):
-        user = self.request.user
-        notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
-        if notice.writer != user:
+        user = StudyUser.objects.get(user=self.request.user)
+        group_notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
+        if group_notice.writer != user:
             raise Http404
-        serializer = StudyGroupSerializer(notice, data=self.request.data)
+        serializer = StudyGroupNoticeSerializer(group_notice, data=self.request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -53,9 +53,8 @@ class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView): # group_notices/<
             raise Http404
 
     def perform_destroy(self, request, *argc, **kwargs):
-        user = self.request.user
-        notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
-        if notice.writer == user:
-            notice.delete()
-        else:
+        user = StudyUser.objects.get(user=self.request.user)
+        group_notice = StudyGroupNotice.objects.get(pk=self.kwargs['pk'])
+        if not group_notice.writer == user:
             raise Http404
+        group_notice.delete()
