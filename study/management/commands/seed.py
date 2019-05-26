@@ -25,7 +25,7 @@ class Command(BaseCommand):
         print('Migrate database')
         python_executable = sys.executable
         project_path = os.getcwd()
-        manage_py_path = '{}/manage.py'.format(project_path)
+        manage_py_path = '%s/manage.py' % project_path
         subprocess.check_call(
             [python_executable, manage_py_path, 'migrate'],
             env=os.environ.copy()

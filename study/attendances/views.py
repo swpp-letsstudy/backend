@@ -1,4 +1,5 @@
 from rest_framework import generics
+from django.contrib.auth.models import User
 
 from study.study_users.models import StudyUser
 from study.study_meetings.models import StudyMeeting

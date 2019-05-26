@@ -3,13 +3,13 @@ from django.contrib.auth.models import User
 
 
 USERS_INFO = [{
-    'username': 'user{}'.format(i),
+    'username': 'user%d' % i,
     'password': '1234'
 } for i in range(3)]
 
 
 GROUPS_INFO = [{
-    'name': 'group{}'.format(i),
+    'name': 'group%d' % i,
     'info': 'info',
 } for i in range(3)]
 
@@ -27,7 +27,7 @@ class GroupTestCase(APITestCase):
         return User.objects.get(auth_token=self.token)
 
     def header(self):
-        return {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token)} if self.token else {}
+        return {'HTTP_AUTHORIZATION': 'Token %s' % self.token} if self.token else {}
 
     def get(self, path):
         return self.client.get(path, **self.header())
