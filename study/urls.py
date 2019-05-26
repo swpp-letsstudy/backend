@@ -37,7 +37,7 @@ urlpatterns += [
     path('meeting_notices/', StudyMeetingNoticeList.as_view()),             # GET, POST ?meetingId=<meetingId>
     path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, PUT, DELETE ?meetingId=<meetingId>
     
-    path('attendances/', AttendanceView.as_view()),                         # POST
+    path('attendance/', AttendanceView.as_view()),                         # POST
     path('policies/', PolicyList.as_view()),                                # GET, POST ?groupId=<groupId>
     path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE ?groupId=<groupId>
     path('meeting_fines/', MeetingFineList.as_view()),                      # GET, POST ?meetingId=<meetingId>

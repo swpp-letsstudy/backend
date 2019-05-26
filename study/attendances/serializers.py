@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from .models import Attendance
-from study.study_meetings.serializers import StudyMeetingSerializer
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
