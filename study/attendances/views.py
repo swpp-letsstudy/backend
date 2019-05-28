@@ -16,8 +16,7 @@ class AttendanceView(generics.CreateAPIView): # attendances/
     otherwise, create an new attendance instance.
     '''
     def perform_create(self, serializer):
-        user = User.objects.filter(id=self.request.data['userId'])[0]
-        user = StudyUser.objects.filter(user=user)[0]
+        user = StudyUser.objects.filter(id=self.request.data['userId'])[0]
         meeting = StudyMeeting.objects.filter(id=self.request.data['meetingId'])[0]
         attendances = Attendance.objects.filter(user=user, meeting=meeting)
         if attendances:
