@@ -20,9 +20,8 @@ GROUPS_INFO = [{
 
 
 MEETINGS_INFO = [{
-    'time': datetime.now(timezone.utc).replace(
-        minute=0, second=0, microsecond=0),
-    'info': 'info',
+    'time': datetime.now(timezone.utc).replace(second=0, microsecond=0),
+    'info': 'info%d' % i,
 } for i in range(3)]
 
 
@@ -56,17 +55,19 @@ class AttendanceTest(APITestCase):
         for GROUP_INFO in GROUPS_INFO:
             self.create_group(GROUP_INFO)
 
-        group_id = StudyGroup.objects.all()[0].id
+        groupId = StudyGroup.objects.all()[0].id
 
         for MEETING_INFO in MEETINGS_INFO:
-            self.post('/meetings/?groupId=%d' % group_id, MEETING_INFO)
+            self.post('/meetings/?groupId=%d' % groupId, MEETING_INFO)
 
     def test_create_attendance(self):
-        users = StudyUser.objects.all()
         meetings = StudyMeeting.objects.all()
 
-        for user in users:
-            for meeting in meetings:
-                data = dict([('userId', user.id)] + [('meetingId', meeting.id)])
-                response = self.post('/attendances/', data)
+        for meeting in meetings:
+            for user in meeting.members.all():
+                data = {
+                    'userId': user.id,
+                    'meetingId': meeting.id
+                }
+                response = self.post('/attendance/', data)
                 self.assertEqual(response.status_code, 201)
