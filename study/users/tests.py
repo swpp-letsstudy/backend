@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 USERS_INFO = [{
-    'username': 'user{}'.format(i),
+    'username': 'user%d' % i,
     'password': '1234'
 } for i in range(3)]
 

@@ -7,13 +7,13 @@ from study.study_groups.models import StudyGroup
 
 
 USERS_INFO = [{
-    'username': 'user{}'.format(i),
+    'username': 'user%d' % i,
     'password': '1234'
 } for i in range(3)]
 
 
 GROUPS_INFO = [{
-    'name': 'group{}'.format(i),
+    'name': 'group%d' % i,
     'info': 'info',
 } for i in range(3)]
 
@@ -26,7 +26,6 @@ MEETINGS_INFO = [{
 
 
 class MeetingTestCase(APITestCase):
-
     def setUp(self):
         for USER_INFO in USERS_INFO:
             User.objects.create_user(**USER_INFO)
@@ -38,8 +37,7 @@ class MeetingTestCase(APITestCase):
         return User.objects.get(auth_token=self.token)
 
     def header(self):
-        return {'HTTP_AUTHORIZATION': 'Token {}'.format(
-            self.token)} if self.token else {}
+        return {'HTTP_AUTHORIZATION': 'Token %s' % self.token} if self.token else {}
 
     def get(self, path):
         return self.client.get(path, **self.header())
@@ -59,9 +57,9 @@ class MeetingTestCase(APITestCase):
         group_id = StudyGroup.objects.all()[0].id
 
         for MEETING_INFO in MEETINGS_INFO:
-            data = dict(list(MEETING_INFO.items()) + [('groupId', group_id)])
-            response = self.post('/meetings/', data)
+            data = dict(list(MEETING_INFO.items()))
+            response = self.post('/meetings/?groupId=%d' % group_id, data)
             self.assertEqual(response.status_code, 201)
 
-        response = self.get('/meetings/?groupId={}'.format(group_id))
+        response = self.get('/meetings/?groupId=%d' % group_id)
         self.assertEqual(response.status_code, 200)
