@@ -32,7 +32,7 @@ class StudyMeetingNoticeList(generics.ListCreateAPIView): # meeting_notices/?mee
         serializer.save(writer=user, meeting=meeting)
 
 
-class StudyMeetingNoticeDetail(generics.RetrieveDestroyAPIView): # meeting_notices/<int:pk>/?meetingId=<meetingId>
+class StudyMeetingNoticeDetail(generics.RetrieveUpdateDestroyAPIView): # meeting_notices/<int:pk>/?meetingId=<meetingId>
     # GET
     # PUT
     # DELETE
