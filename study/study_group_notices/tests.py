@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 
 from study.study_groups.models import StudyGroup
+from study.study_group_notices.models import StudyGroupNotice
 
 USERS_INFO = [{
     'username': 'user%d' % i,
@@ -58,3 +59,7 @@ class GroupTestCase(APITestCase):
 
         response = self.get('/group_notices/?groupId=%d' % group_id)
         self.assertEqual(response.status_code, 200)
+
+        notice_id = StudyGroupNotice.objects.all().filter(group_id = group_id)[0].id
+        
+        response = self.get('group_notices/{}/?groupId={}'.format(notice_id, group_id))
