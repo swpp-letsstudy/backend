@@ -11,7 +11,7 @@ from study.permissions import IsMember
 
 class StudyGroupList(generics.ListCreateAPIView): # groups/
     # GET get request.user's StudyGroups
-    # POST { name, info }, create request.user's StudyGroup
+    # POST { name, info, start_date, end_date, meetingDay, meetingTime }, create request.user's StudyGroup
     serializer_class = StudyGroupSerializer
     permission_classes = (IsAuthenticated,)
 
