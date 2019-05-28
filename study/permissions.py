@@ -1,14 +1,16 @@
 from rest_framework import permissions
 
+from study.study_users.models import StudyUser
 
-class IsMember(permissions.BasePermission):
+
+class IsGroupMember(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return obj.members.filter(id=user.id).exists()
+        user = StudyUser.objects.get(user=request.user)
+        return user in obj.members.all()
 
 
-class IsMeetingUser(permissions.BasePermission):
+class IsMeetingMember(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        user = request.user
+        user = StudyUser.objects.get(user=request.user)
         group = obj.group
-        return group.owner == user or group.members.filter(id=user.id).exists()
+        return user in group.members.all()

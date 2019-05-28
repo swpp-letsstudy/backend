@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
+from study.study_users.models import StudyUser
+
 
 class MyLoginView(ObtainAuthToken): # login/
     # POST { username, password }, login and return { token, username, id }
@@ -13,9 +15,10 @@ class MyLoginView(ObtainAuthToken): # login/
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
+        studyuser = StudyUser.objects.get(user=user)
         return Response({
             'token': token.key,
-            'username': user.username,
+            'nickname': studyuser.nickname,
             'id': user.id,
         })
 
@@ -26,12 +29,16 @@ class MyRegisterView(APIView): # register/
         if 'username' in request.data.keys() and 'password' in request.data.keys():
             if User.objects.filter(username=request.data['username']).exists():
                 return Response('username already exists', status=409)
+                
+            if StudyUser.objects.filter(nickname=request.data['nickname']).exists():
+                return Response('nickname already exists', status=409)
 
             user = User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])
-            if 'info' in request.data.keys():
+            if 'nickname' in request.data.keys():
                 studyuser = StudyUser.objects.get(user=user)
-                studyuser.info = request.data['info']
+                studyuser.nickname = request.data['nickname']
                 studyuser.save()
+                
             return Response('successed', status=201)
         else:
             raise Http404
@@ -40,4 +47,6 @@ class MyRegisterView(APIView): # register/
 class MySignOutView(APIView): # signout/
     # POST, signout
     def post(self, request, format=None):
+        studyuser = StudyUser.objects.get(user=user)
+        studyuser.delete()
         request.user.delete()
