@@ -4,6 +4,8 @@ from rest_framework import status
 import boto3
 from botocore.exceptions import ClientError
 
+from study.utils.recursive_default_dict import RecursiveDefaultDict
+
 
 s3_client = boto3.client('s3')
 BUCKET_NAME = 'letsstudy-test'
@@ -49,7 +51,17 @@ class CloudFileTree(APIView):
 
         try:
             response = s3_client.list_objects_v2(Bucket=BUCKET_NAME)
-            file_tree = response['file_tree']['Contents']
-            return Response({'file_tree': file_tree})
+            file_paths = map(lambda content: content['Key'], response['Contents'])
+
+            recursive_default_dict = RecursiveDefaultDict()
+            for file_path in file_paths:
+                file_path_split = file_path.split('/')
+                if not file_path_split[-1]:
+                    file_path_split = file_path_split[:-1]
+                directory_names = file_path_split[:-1]
+                file_name = file_path_split[-1]
+                recursive_default_dict[directory_names] = file_name
+
+            return Response({'file_tree': recursive_default_dict.to_dict()})
         except ClientError as e:
             return Response({'error': e})
