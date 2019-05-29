@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 import boto3
 from botocore.exceptions import ClientError
+import re
 
 from study.utils.recursive_default_dict import RecursiveDefaultDict
 
@@ -56,10 +57,17 @@ class CloudStorageFileTree(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
+        groupId = request.data['groupId']
 
         try:
             response = s3_client.list_objects_v2(Bucket=BUCKET_NAME)
-            file_paths = map(lambda content: content['Key'], response['Contents'])
+            global_file_paths = map(lambda content: content['Key'], response['Contents'])
+            group_file_paths = filter(
+                lambda global_file_path: re.match(r'^{}/'.format(groupId), global_file_path),
+                global_file_paths)
+            file_paths = map(
+                lambda file_path: re.sub(r'^{}/'.format(groupId), '', file_path),
+                group_file_paths)
 
             recursive_default_dict = RecursiveDefaultDict()
             for file_path in file_paths:
