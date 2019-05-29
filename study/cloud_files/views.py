@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 import boto3
 from botocore.exceptions import ClientError
 
@@ -12,6 +13,7 @@ BUCKET_NAME = 'letsstudy-test'
 
 
 class CloudFileDetail(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
         file_path = request.data['filepath']
@@ -29,6 +31,7 @@ class CloudFileDetail(APIView):
 
 
 class CloudFileCreate(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
         file_path = request.data['filepath']
@@ -46,6 +49,7 @@ class CloudFileCreate(APIView):
 
 
 class CloudFileTree(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
 
