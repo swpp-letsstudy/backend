@@ -16,7 +16,9 @@ class CloudFileDetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
-        file_path = request.data['filepath']
+        groupId = request.data['groupId']
+        file_path_in_group = request.data['filepath']
+        file_path = '{}/{}'.format(groupId, file_path_in_group)
         try:
             url = s3_client.generate_presigned_url(
                 'get_object',
@@ -34,7 +36,9 @@ class CloudFileCreate(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
-        file_path = request.data['filepath']
+        groupId = request.data['groupId']
+        file_path_in_group = request.data['filepath']
+        file_path = '{}/{}'.format(groupId, file_path_in_group)
         try:
             url = s3_client.generate_presigned_url(
                 'put_object',

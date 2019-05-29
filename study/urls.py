@@ -44,9 +44,9 @@ urlpatterns += [
     path('meeting_fines/', MeetingFineList.as_view()),                      # GET, POST ?meetingId=<meetingId>
     path('meeting_fines/<int:pk>/', MeetingFineDetail.as_view()),           # GET, PUT, DELETE ?meetingId=<meetingId>
 
-    path('cloud_files/get_url/get/', CloudFileDetail.as_view()),            # POST ?filepath=<filepath>
-    path('cloud_files/get_url/upload/', CloudFileCreate.as_view()),         # POST ?filepath=<filepath>
     path('cloud_files/', CloudFileTree.as_view()),                          # GET
+    path('cloud_files/get_url/get/', CloudFileDetail.as_view()),            # POST
+    path('cloud_files/get_url/upload/', CloudFileCreate.as_view()),         # POST
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
