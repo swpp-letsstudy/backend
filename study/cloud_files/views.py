@@ -41,3 +41,15 @@ class CloudFileCreate(APIView):
             return Response({'url': url}, status=status.HTTP_200_OK)
         except ClientError as e:
             return Response({'error': e})
+
+
+class CloudFileTree(APIView):
+
+    def get(self, request, format=None):
+
+        try:
+            response = s3_client.list_objects_v2(Bucket=BUCKET_NAME)
+            file_tree = response['file_tree']['Contents']
+            return Response({'file_tree': file_tree})
+        except ClientError as e:
+            return Response({'error': e})

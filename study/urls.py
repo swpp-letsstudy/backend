@@ -10,7 +10,7 @@ from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
 from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail
-from study.cloud_files.views import CloudFileDetail, CloudFileCreate
+from study.cloud_files.views import CloudFileDetail, CloudFileCreate, CloudFileTree
 
 
 # Don't need Login
@@ -46,6 +46,7 @@ urlpatterns += [
 
     path('cloud_files/get_url/get/', CloudFileDetail.as_view()),            # POST ?filepath=<filepath>
     path('cloud_files/get_url/upload/', CloudFileCreate.as_view()),         # POST ?filepath=<filepath>
+    path('cloud_files/', CloudFileTree.as_view()),                          # GET
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
