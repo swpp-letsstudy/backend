@@ -12,7 +12,7 @@ s3_client = boto3.client('s3')
 BUCKET_NAME = 'letsstudy-test'
 
 
-class CloudFileDetail(APIView):
+class CloudStorageFileDetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
@@ -32,7 +32,7 @@ class CloudFileDetail(APIView):
             return Response({'error': e}, status.HTTP_204_NO_CONTENT)
 
 
-class CloudFileCreate(APIView):
+class CloudStorageFileCreate(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
@@ -52,7 +52,7 @@ class CloudFileCreate(APIView):
             return Response({'error': e})
 
 
-class CloudFileTree(APIView):
+class CloudStorageFileTree(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
