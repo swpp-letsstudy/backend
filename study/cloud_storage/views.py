@@ -58,26 +58,31 @@ class CloudStorageFileTree(APIView):
 
     def get(self, request, format=None):
         groupId = request.data['groupId']
-
         try:
             response = s3_client.list_objects_v2(Bucket=BUCKET_NAME)
             global_file_paths = map(lambda content: content['Key'], response['Contents'])
-            group_file_paths = filter(
-                lambda global_file_path: re.match(r'^{}/'.format(groupId), global_file_path),
-                global_file_paths)
-            file_paths = map(
-                lambda file_path: re.sub(r'^{}/'.format(groupId), '', file_path),
-                group_file_paths)
-
-            recursive_default_dict = RecursiveDefaultDict()
-            for file_path in file_paths:
-                file_path_split = file_path.split('/')
-                if not file_path_split[-1]:
-                    file_path_split = file_path_split[:-1]
-                directory_names = file_path_split[:-1]
-                file_name = file_path_split[-1]
-                recursive_default_dict[directory_names] = file_name
-
-            return Response({'file_tree': recursive_default_dict.to_dict()})
+            file_paths = self.file_paths_to_tree(global_file_paths, groupId)
+            file_tree = self.file_paths_to_tree(file_paths)
+            return Response({'file_tree': file_tree})
         except ClientError as e:
             return Response({'error': e})
+
+    def global_file_paths_to_group_file_paths(self, global_file_paths, groupId):
+        group_file_paths = filter(
+            lambda global_file_path: re.match(r'^{}/'.format(groupId), global_file_path),
+            global_file_paths)
+        file_paths = map(
+            lambda file_path: re.sub(r'^{}/'.format(groupId), '', file_path),
+            group_file_paths)
+        return file_paths
+
+    def file_paths_to_tree(self, file_paths):
+        recursive_default_dict = RecursiveDefaultDict()
+        for file_path in file_paths:
+            file_path_split = file_path.split('/')
+            if not file_path_split[-1]:
+                file_path_split = file_path_split[:-1]
+            directory_names = file_path_split[:-1]
+            file_name = file_path_split[-1]
+            recursive_default_dict[directory_names] = file_name
+        return recursive_default_dict.to_dict()
