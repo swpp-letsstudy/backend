@@ -57,13 +57,13 @@ class CloudStorageFileTree(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
-        groupId = request.data['groupId']
+        groupId = self.request.query_params.get('groupId')
         try:
             response = s3_client.list_objects_v2(Bucket=BUCKET_NAME)
             global_file_paths = map(lambda content: content['Key'], response['Contents'])
             file_paths = self.filter_group_file_paths(global_file_paths, groupId)
             file_tree = FileTreeGenerator().put_all(file_paths).tree
-            return Response({'file_tree': file_tree})
+            return Response(file_tree)
         except ClientError as e:
             return Response({'error': e})
 
