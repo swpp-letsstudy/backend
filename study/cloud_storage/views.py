@@ -28,7 +28,7 @@ class CloudStorageFileDetail(APIView):
                     'Key': file_path,
                 },
                 ExpiresIn=3600)
-            return Response({'url': url}, status=status.HTTP_200_OK)
+            return Response(url, status=status.HTTP_200_OK)
         except ClientError as e:
             return Response({'error': e}, status.HTTP_204_NO_CONTENT)
 
@@ -48,7 +48,7 @@ class CloudStorageFileCreate(APIView):
                     'Key': file_path,
                 },
                 ExpiresIn=3600)
-            return Response({'url': url}, status=status.HTTP_200_OK)
+            return Response(url, status=status.HTTP_200_OK)
         except ClientError as e:
             return Response({'error': e})
 
