@@ -15,8 +15,11 @@ class FileTreeGenerator:
 
     def recursive_put(self, tree, split_file_path, full_file_path):
         if len(split_file_path) > 1:
-            node_dict = {'name': split_file_path[0], 'children': []}
-            tree.append(node_dict)
+            if split_file_path[0] in map(lambda node: node['name'], tree):
+                node_dict = list(filter(lambda node: node['name'] == split_file_path[0], tree))[0]
+            else:
+                node_dict = {'name': split_file_path[0], 'children': []}
+                tree.append(node_dict)
             self.recursive_put(node_dict['children'], split_file_path[1:], full_file_path)
         elif split_file_path[0] != '':
             tree.append({
