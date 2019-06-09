@@ -32,6 +32,21 @@ class CloudStorageFileDetail(APIView):
         except ClientError as e:
             return Response({'error': e}, status.HTTP_204_NO_CONTENT)
 
+    # Doesn't check whether the file exists in the storage
+    def delete(self, request, format=None):
+        print(request.data)
+        groupId = request.data['groupId']
+        file_path_in_group = request.data['filepath']
+        file_path = '{}/{}'.format(groupId, file_path_in_group)
+        try:
+            response = s3_client.delete_object(
+                Bucket=BUCKET_NAME,
+                Key=file_path
+            )
+            return Response('', status=status.HTTP_200_OK)
+        except ClientError as e:
+            return Response({'error': e}, status.HTTP_204_NO_CONTENT)
+
 
 class CloudStorageFileCreate(APIView):
     permission_classes = (IsAuthenticated,)
