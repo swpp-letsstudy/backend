@@ -33,8 +33,7 @@ class CloudStorageFileDetail(APIView):
             return Response({'error': e}, status.HTTP_204_NO_CONTENT)
 
     # Doesn't check whether the file exists in the storage
-    def delete(self, request, format=None):
-        print(request.data)
+    def post(self, request, format=None):
         groupId = request.data['groupId']
         file_path_in_group = request.data['filepath']
         file_path = '{}/{}'.format(groupId, file_path_in_group)
