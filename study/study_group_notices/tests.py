@@ -41,6 +41,9 @@ class GroupTestCase(APITestCase):
     def post(self, path, data):
         return self.client.post(path, data, **self.header())
 
+    def put(self, path, data):
+        return self.client.put(path, data, **self.header())
+
     def create_group(self):
         for GROUP_INFO in GROUPS_INFO:
             self.post('/groups/', GROUP_INFO)
@@ -62,4 +65,12 @@ class GroupTestCase(APITestCase):
 
         notice_id = StudyGroupNotice.objects.all().filter(group_id = group_id)[0].id
         
-        response = self.get('group_notices/{}/?groupId={}'.format(notice_id, group_id))
+        response = self.get('/group_notices/{}/?groupId={}'.format(notice_id, group_id))
+        self.assertEqual(response.status_code, 200)
+
+        data = {
+            'title': 'titleupdate',
+            'contents': 'contentsupdate',
+        }
+        response = self.put('/group_notices/{}/?groupId={}'.format(notice_id, group_id), data)
+        self.assertEqual(response.status_code, 200)
