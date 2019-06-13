@@ -32,7 +32,7 @@ class StudyGroupNoticeList(generics.ListCreateAPIView): # group_notices/?groupId
         serializer.save(writer=user, group=group)
 
 
-class StudyGroupNoticeDetail(generics.RetrieveDestroyAPIView): # group_notices/<int:pk>/?groupId=<groupId>
+class StudyGroupNoticeDetail(generics.RetrieveUpdateDestroyAPIView): # group_notices/<int:pk>/?groupId=<groupId>
     # GET
     # PUT
     # DELETE
