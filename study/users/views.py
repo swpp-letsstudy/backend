@@ -24,9 +24,9 @@ class MyLoginView(ObtainAuthToken): # login/
 
 
 class MyRegisterView(APIView): # register/
-    # POST { username, password }, register
+    # POST { username, password, nickname }, register
     def post(self, request, format=None):
-        if 'username' in request.data.keys() and 'password' in request.data.keys():
+        if 'username' in request.data.keys() and 'password' in request.data.keys() and 'nickname' in request.data.keys():
             if User.objects.filter(username=request.data['username']).exists():
                 return Response('username already exists', status=409)
                 
@@ -34,11 +34,14 @@ class MyRegisterView(APIView): # register/
                 return Response('nickname already exists', status=409)
 
             user = User.objects.create_user(username=self.request.data['username'], password=self.request.data['password'])
-            if 'nickname' in request.data.keys():
-                studyuser = StudyUser.objects.get(user=user)
-                studyuser.nickname = request.data['nickname']
-                studyuser.save()
-                
+            nickname = request.data['nickname']
+            if StudyUser.objects.filter(nickname=nickname).exists():
+                raise Http404
+
+            studyuser = StudyUser.objects.get(user=user)
+            studyuser.nickname = nickname
+            studyuser.save()
+
             return Response('successed', status=201)
         else:
             raise Http404

@@ -15,11 +15,16 @@ class StudyUserView(APIView): # user_setting/
 
     # PUT { { username, password }, nickname }, update request.user's StudyUser and return updated 
     def put(self, request, format=None):
-        studyuser = StudyUser.objects.get(user=request.user)
-        serializer = StudyUserSerializer(studyuser, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
+        if not 'nickname' in request.data.keys():
             raise Http404
 
+        nickname = request.data['nickname']
+        
+        if StudyUser.objects.filter(nickname=nickname).exists():
+            raise Http404
+
+        user = request.user
+        studyuser = StudyUser.objects.get(user=user)
+        studyuser.nickname = nickname
+        studyuser.save()
+        return Response(StudyUserSerializer(studyuser).data)
