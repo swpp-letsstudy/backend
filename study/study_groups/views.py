@@ -53,9 +53,25 @@ class JoinStudyGroup(APIView): # join_group/?token=<token>
         if not StudyGroup.objects.filter(pk=pk).exists():
             raise Http404
         studygroup = StudyGroup.objects.get(pk=pk)
+        if not studygroup.is_open:
+            raise Http404
         user = StudyUser.objects.get(user=request.user)
         studygroup.members.add(user)
         studygroup.save()
         studygroups = StudyGroup.objects.filter(members__in=[user])
         serializer = StudyGroupSerializer(studygroups, many=True)
         return Response(serializer.data)
+
+
+class OpenCloseStudyGroup(APIView):
+    # GET
+    def get(self, request, format=None):
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        if studygroup.owner.user != request.user:
+            raise Http404
+        studygroup.is_open = not studygroup.is_open
+        studygroup.save()
+        return Response('successed', status=200)
