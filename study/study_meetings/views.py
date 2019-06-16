@@ -1,5 +1,7 @@
 from django.http import Http404
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from study.study_users.models import StudyUser
@@ -34,3 +36,18 @@ class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer
 
+class JoinExitMeeting(APIView):
+    def get(self, request, format=None):
+        meetingId = self.request.query_params.get('meetingId', None)
+        if not StudyMeeting.objects.filter(pk=meetingId).exists():
+            raise Http404
+        studymeeting = StudyMeeting.objects.get(pk=meetingId)
+        studyuser = StudyUser.objects.get(user=request.user)
+        if not studyuser in studymeeting.group.members.all():
+            raise Http404
+        if studyuser in studymeeting.members.all():
+            studymeeting.members.remove(studyuser)
+            return Response('exited', status=200)
+        else:
+            studymeeting.members.add(studyuser)
+            return Response('added', status=200)
