@@ -6,7 +6,7 @@ from study.users.views import MyLoginView, MyRegisterView, MySignOutView
 from study.study_users.views import StudyUserView
 from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup, OpenCloseStudyGroup
 from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoticeDetail
-from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
+from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail, JoinExitMeeting
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
 from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail
@@ -35,6 +35,7 @@ urlpatterns += [
 
     path('meetings/', StudyMeetingList.as_view()),                          # GET, POST ?groupId=<groupId>
     path('meetings/<int:pk>/', StudyMeetingDetail.as_view()),               # GET, PUT, DELETE ?groupId=<groupId>
+    path('joinexit_meeting/', JoinExitMeeting.as_view()),                   # GET, ?meetingId=<meetingId>
 
     path('meeting_notices/', StudyMeetingNoticeList.as_view()),             # GET, POST ?meetingId=<meetingId>
     path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, PUT, DELETE ?meetingId=<meetingId>
