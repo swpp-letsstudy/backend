@@ -14,4 +14,4 @@ class StudyGroup(models.Model):
     members = models.ManyToManyField(StudyUser, related_name='study_groups_join')
     name = models.CharField(max_length=20)
     info = models.CharField(default='', max_length=100)
-    
+    is_open = models.BooleanField(default=False)
