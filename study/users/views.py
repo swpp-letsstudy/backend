@@ -50,6 +50,9 @@ class MyRegisterView(APIView): # register/
 class MySignOutView(APIView): # signout/
     # POST, signout
     def post(self, request, format=None):
-        studyuser = StudyUser.objects.get(user=user)
+        if not StudyUser.objects.filter(user=request.user).exists():
+            raise Http404
+        studyuser = StudyUser.objects.get(user=request.user)
         studyuser.delete()
         request.user.delete()
+        return Response('deleted', status=200)
