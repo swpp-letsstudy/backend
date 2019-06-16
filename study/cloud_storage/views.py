@@ -32,6 +32,10 @@ class CloudStorageFileDetail(APIView):
         except ClientError as e:
             return Response({'error': e}, status.HTTP_204_NO_CONTENT)
 
+
+class CloudStorageFileDelete(APIView):
+    permission_classes = (IsAuthenticated,)
+
     # Doesn't check whether the file exists in the storage
     def post(self, request, format=None):
         groupId = request.data['groupId']

@@ -10,7 +10,7 @@ from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
 from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail
-from study.cloud_storage.views import CloudStorageFileDetail, CloudStorageFileCreate, CloudStorageFileTree
+from study.cloud_storage.views import CloudStorageFileDetail, CloudStorageFileCreate, CloudStorageFileTree, CloudStorageFileDelete
 
 
 # Don't need Login
@@ -45,7 +45,7 @@ urlpatterns += [
     path('meeting_fines/<int:pk>/', MeetingFineDetail.as_view()),           # GET, PUT, DELETE ?meetingId=<meetingId>
 
     path('cloud_storage/', CloudStorageFileTree.as_view()),                 # GET ?groupId=<groupId>
-    path('cloud_storage/delete/', CloudStorageFileDetail.as_view()),        # POST
+    path('cloud_storage/delete/', CloudStorageFileDelete.as_view()),        # POST
     path('cloud_storage/get_url/get/', CloudStorageFileDetail.as_view()),   # POST
     path('cloud_storage/get_url/upload/', CloudStorageFileCreate.as_view()),# POST
 ]
