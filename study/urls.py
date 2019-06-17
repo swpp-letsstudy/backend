@@ -9,7 +9,7 @@ from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoti
 from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
-from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail
+from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail, MyFineList, GetFineSum
 from study.cloud_storage.views import CloudStorageFileDetail, CloudStorageFileCreate, CloudStorageFileTree, CloudStorageFileDelete
 
 
@@ -40,8 +40,12 @@ urlpatterns += [
     path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, PUT, DELETE ?meetingId=<meetingId>
     
     path('attendance/', AttendanceView.as_view()),                          # POST
+    path('my_fines/', MyFineList.as_view()),                                # GET, ?groupId=<groupId>
+    path('sum_of_fines/', GetFineSum.as_view()),                            # GET, ?groupId=<groupId>
+    
     path('policies/', PolicyList.as_view()),                                # GET, POST ?groupId=<groupId>
     path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE ?groupId=<groupId>
+    
     path('meeting_fines/', MeetingFineList.as_view()),                      # GET, POST ?meetingId=<meetingId>
     path('meeting_fines/<int:pk>/', MeetingFineDetail.as_view()),           # GET, PUT, DELETE ?meetingId=<meetingId>
 

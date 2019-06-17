@@ -1,14 +1,42 @@
 from django.http import Http404
 from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
 from study.study_meetings.models import StudyMeeting
-from .models import Policy, MeetingFine, Fine
-from .serializers import PolicySerializer, MeetingFineSerializer
+from .models import *
+from .serializers import *
 
+class MyFineList(generics.ListAPIView):
+    serializer_class = FineSerializer
+
+    def get_queryset(self):
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        studyuser = StudyUser.objects.get(user=self.request.user)
+        return Fine.objects.filter(meeting_fine__policy__group=studygroup, user=studyuser)
+
+
+class GetFineSum(APIView):
+    # GET
+    def get(self, request, format=None):
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        studyuser = StudyUser.objects.get(user=self.request.user)
+        meeting_fines = MeetingFine.objects.filter(policy__group=studygroup)
+        fine_sum = 0
+        for meeting_fine in meeting_fines:
+            if Fine.objects.filter(meeting_fine=meeting_fine, user=studyuser).exists():
+                fine_sum += meeting_fine.policy.amount
+        return Response(data=fine_sum, status=200)
+        
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s Policies
@@ -19,7 +47,7 @@ class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
     def get_queryset(self):
         user = StudyUser.objects.get(user=self.request.user)
         groupId = self.request.query_params.get('groupId', None)
-        group = StudyGroup.objects.get(id=groupId)
+        group = StudyGroup.objects.get(pk=groupId)
         if not user in group.members.all():
             raise Http404
         return Policy.objects.filter(group=group)
@@ -27,7 +55,7 @@ class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
     def perform_create(self, serializer):
         user = StudyUser.objects.get(user=self.request.user)
         groupId = self.request.query_params.get('groupId', None)
-        group = StudyGroup.objects.get(id=groupId)
+        group = StudyGroup.objects.get(pk=groupId)
         if not user in group.members.all():
             raise Http404
         serializer.save(group=group)
@@ -69,7 +97,7 @@ class MeetingFineList(generics.ListCreateAPIView): # meeting_fines/?meetingId=<m
     def get_queryset(self):
         user = StudyUser.objects.get(user=self.request.user)
         meetingId = self.request.query_params.get('meetingId', None)
-        meeting = StudyMeeting.objects.get(id=meetingId)
+        meeting = StudyMeeting.objects.get(pk=meetingId)
         if not user in meeting.group.members.all():
             raise Http404
         return MeetingFine.objects.filter(meeting=meeting)
@@ -77,7 +105,7 @@ class MeetingFineList(generics.ListCreateAPIView): # meeting_fines/?meetingId=<m
     def perform_create(self, serializer):
         user = StudyUser.objects.get(user=self.request.user)
         meetingId = self.request.query_params.get('meetingId', None)
-        meeting = StudyMeeting.objects.get(id=meetingId)
+        meeting = StudyMeeting.objects.get(pk=meetingId)
         if not user in meeting.group.members.all():
             raise Http404
         serializer.save(meeting=meeting)
