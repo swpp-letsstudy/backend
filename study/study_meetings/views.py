@@ -28,26 +28,11 @@ class StudyMeetingList(generics.ListCreateAPIView): # meetings/?groupId=<groupId
         group = StudyGroup.objects.get(id=groupId)
         if not user in group.members.all():
             raise Http404
-        serializer.save(group=group, members=[user])
+        serializer.save(group=group)
 
 
 class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int:pk>/?groupId=<groupId>
     permission_classes = (IsAuthenticated, IsMeetingMember)
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer
-
-class JoinExitMeeting(APIView):
-    def get(self, request, format=None):
-        meetingId = self.request.query_params.get('meetingId', None)
-        if not StudyMeeting.objects.filter(pk=meetingId).exists():
-            raise Http404
-        studymeeting = StudyMeeting.objects.get(pk=meetingId)
-        studyuser = StudyUser.objects.get(user=request.user)
-        if not studyuser in studymeeting.group.members.all():
-            raise Http404
-        if studyuser in studymeeting.members.all():
-            studymeeting.members.remove(studyuser)
-            return Response('exited', status=200)
-        else:
-            studymeeting.members.add(studyuser)
-            return Response('added', status=200)
+    
