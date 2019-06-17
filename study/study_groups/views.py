@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from study.study_users.models import StudyUser
 from .models import StudyGroup
 from .serializers import StudyGroupSerializer
+from study.attendances.models import Attendance
 from study.permissions import IsGroupMember
 
 
@@ -37,10 +38,17 @@ class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
     def perform_destroy(self, request, *argc, **kwargs):
         user = StudyUser.objects.get(user=self.request.user)
         studygroup = StudyGroup.objects.get(pk=self.kwargs['pk'])
+        attendances = Attendance.objects.all()
         if studygroup.owner == user:
             studygroup.delete()
+            for attendance in attendances:
+                if attendance.meeting.group == studygroup:
+                    attendance.delete()
         else:
             studygroup.members.remove(user)
+            for attendance in attendances:
+                if attendance.user == user:
+                    attendance.delete()
 
 
 class JoinStudyGroup(APIView): # join_group/?token=<token>
