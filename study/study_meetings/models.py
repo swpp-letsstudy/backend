@@ -12,7 +12,6 @@ class StudyMeeting(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     group = models.ForeignKey(StudyGroup, related_name='study_meetings', on_delete=models.CASCADE)
-    members = models.ManyToManyField(StudyUser, related_name='study_meetings')
     time = models.DateTimeField()
     info = models.CharField(default='', max_length=100)
 

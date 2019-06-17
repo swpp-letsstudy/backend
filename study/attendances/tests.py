@@ -64,7 +64,7 @@ class AttendanceTest(APITestCase):
         meetings = StudyMeeting.objects.all()
 
         for meeting in meetings:
-            for user in meeting.members.all():
+            for user in meeting.group.members.all():
                 data = {
                     'userId': user.id,
                     'meetingId': meeting.id

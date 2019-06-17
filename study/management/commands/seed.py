@@ -95,13 +95,13 @@ class Command(BaseCommand):
                     group=study_group,
                     time=datetime.datetime.now(pytz.utc).replace(second=0, microsecond=0),
                     info='Meeting%c info' % i,
-                ).members.set(study_group.members.all())
+                )
         self.study_meetings = StudyMeeting.objects.all()
 
     def create_meeting_notices(self):
         print("Create StudyMeetingNotices")
         for meeting in self.study_meetings:
-            for user in meeting.members.all():
+            for user in meeting.group.members.all():
                 i = user.nickname[-1]
                 StudyMeetingNotice.objects.create(
                     writer=user,
@@ -133,7 +133,7 @@ class Command(BaseCommand):
     def create_fines(self):
         print("Create Fines")
         for meeting_fine in self.meeting_fines:
-            for user in meeting_fine.meeting.members.all():
+            for user in meeting_fine.meeting.group.members.all():
                 Fine.objects.create(
                     meeting_fine=meeting_fine,
                     user=user,

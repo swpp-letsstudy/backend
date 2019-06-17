@@ -19,7 +19,7 @@ class StudyMeetingNoticeList(generics.ListCreateAPIView): # meeting_notices/?mee
         user = StudyUser.objects.get(user=self.request.user)
         meetingId = self.request.query_params.get('meetingId', None)
         meeting = StudyMeeting.objects.get(id=meetingId)
-        if not user in meeting.members.all():
+        if not user in meeting.group.members.all():
             raise Http404
         return StudyMeetingNotice.objects.filter(meeting=meeting)
 
@@ -27,7 +27,7 @@ class StudyMeetingNoticeList(generics.ListCreateAPIView): # meeting_notices/?mee
         user = StudyUser.objects.get(user=self.request.user)
         meetingId = self.request.query_params.get('meetingId', None)
         meeting = StudyMeeting.objects.get(id=meetingId)
-        if not user in meeting.members.all():
+        if not user in meeting.group.members.all():
             raise Http404
         serializer.save(writer=user, meeting=meeting)
 
