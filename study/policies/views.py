@@ -12,6 +12,7 @@ from .serializers import *
 
 class MyFineList(generics.ListAPIView):
     serializer_class = FineSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         groupId = self.request.query_params.get('groupId', None)
@@ -36,7 +37,20 @@ class GetFineSum(APIView):
             if Fine.objects.filter(meeting_fine=meeting_fine, user=studyuser).exists():
                 fine_sum += meeting_fine.policy.amount
         return Response(data=fine_sum, status=200)
-        
+
+
+class MeetingFineList(generics.ListAPIView):
+    # GET
+    serializer_class = FineSerializer
+    permission_classes = (IsAuthenticated,)
+    def get_queryset(self):
+        meetingId = self.request.query_params.get('meetingId', None)
+        if not StudyMeeting.objects.filter(pk=meetingId).exists():
+            raise Http404
+        studymeeting = StudyMeeting.objects.get(pk=meetingId)
+        studyuser = StudyUser.objects.get(user=self.request.user)
+        return Fine.objects.filter(meeting_fine__meeting=studymeeting, user=StudyUser)
+
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
     # GET get StudyGroup(id=groupId)'s Policies
@@ -67,6 +81,12 @@ class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>/?
     # DELETE if user is member of group of policy, delete
     serializer_class = PolicySerializer
     permission_classes = (IsAuthenticated,)
+    def get_queryset(self):
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        return Policy.objects.filter(group=studygroup)
 
     def perform_update(self, serializer):
         user = StudyUser.objects.get(user=self.request.user)

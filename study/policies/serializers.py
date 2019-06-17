@@ -30,5 +30,3 @@ class FineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fine
         fields = ('id', 'meeting_fine', 'user')
-
-
