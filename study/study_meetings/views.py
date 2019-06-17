@@ -28,7 +28,7 @@ class StudyMeetingList(generics.ListCreateAPIView): # meetings/?groupId=<groupId
         group = StudyGroup.objects.get(id=groupId)
         if not user in group.members.all():
             raise Http404
-        serializer.save(group=group, members=[user])
+        serializer.save(group=group)
 
 
 class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int:pk>/?groupId=<groupId>
