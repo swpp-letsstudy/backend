@@ -10,6 +10,23 @@ from .serializers import StudyGroupSerializer
 from study.attendances.models import Attendance
 from study.permissions import IsGroupMember
 
+class SetAttendanceFine(APIView):
+    # GET
+    def get(self, request, format=None):
+        groupId = self.request.query_params.get('groupId', None)
+        try:
+            amount = int(self.request.query_params.get('amount', None))
+        except ValueError:
+            raise Http404
+        if amount < 0:
+            raise Http404
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        studygroup.attendance_amount = amount
+        studygroup.save()
+        return Response('successed', status=200)
+
 
 class StudyGroupList(generics.ListCreateAPIView): # groups/
     # GET get user's StudyGroups

@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
 from study.study_meetings.models import StudyMeeting
+from study.attendances.models import Attendance
 from .models import *
 from .serializers import *
 
@@ -36,6 +37,10 @@ class GetFineSum(APIView):
         for meeting_fine in meeting_fines:
             if Fine.objects.filter(meeting_fine=meeting_fine, user=studyuser).exists():
                 fine_sum += meeting_fine.policy.amount
+        attendance_amount = studygroup.attendance_amount
+        for meeting in studygroup.study_meetings.all():
+            if not Attendance.objects.filter(meeting=meeting, user=studyuser).exists():
+                fine_sum += attendance_amount
         return Response(data=fine_sum, status=200)
 
 

@@ -4,7 +4,7 @@ from rest_auth.views import LogoutView
 
 from study.users.views import MyLoginView, MyRegisterView, MySignOutView
 from study.study_users.views import StudyUserView
-from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup, OpenCloseStudyGroup
+from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup, OpenCloseStudyGroup, SetAttendanceFine
 from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoticeDetail
 from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
@@ -29,6 +29,7 @@ urlpatterns += [
     path('groups/<int:pk>/', StudyGroupDetail.as_view()),                   # GET, PUT, DELETE
     path('join_group/', JoinStudyGroup.as_view()),                          # GET, ?token=<token>
     path('openclose_group/', OpenCloseStudyGroup.as_view()),                # GET, ?groupId=<groupId>
+    path('set_attendance_fine/', SetAttendanceFine.as_view()),              # GET, ?groupId=<groupId>&amount=<amount>
 
     path('group_notices/', StudyGroupNoticeList.as_view()),                 # GET, POST ?groupId=<groupId>
     path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),      # GET, PUT, DELETE ?groupId=<groupId>
