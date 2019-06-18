@@ -80,7 +80,7 @@ class Command(BaseCommand):
         for study_group in self.study_groups:
             for user in study_group.members.all():
                 i = user.nickname[-1]
-                for j in range(0, 15):
+                for j in range(0, 5):
                     StudyGroupNotice.objects.create(
                         writer=user,
                         group=study_group,
@@ -116,7 +116,7 @@ class Command(BaseCommand):
         for meeting in self.study_meetings:
             for user in meeting.group.members.all():
                 i = user.nickname[-1]
-                for j in range(0, 5):
+                for j in range(0, 2):
                     StudyMeetingNotice.objects.create(
                         writer=user,
                         meeting=meeting,

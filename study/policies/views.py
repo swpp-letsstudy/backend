@@ -31,16 +31,26 @@ class GetFineSum(APIView):
 
 
 class MyGroupFineList(generics.ListAPIView):
-    serializer_class = FineSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
+    # GET
+    def get(self, request, format=None):
         groupId = self.request.query_params.get('groupId', None)
-        if not StudyGroup.objects.filter(pk=groupId).exists():
+        if not StudyGroup.objects.filter(pk=groupId).exists() or not StudyUser.objects.filter(user=request.user):
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
-        studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(policy__group=studygroup, user=studyuser)
+        studyuser = StudyUser.objects.get(user=request.user)
+        ret = {}
+        for fine in Fine.objects.filter(policy__group=studygroup, user=studyuser):
+            if not fine.meeting.info in ret:
+                ret[fine.meeting.info] = []
+            ret[fine.meeting.info].append({
+                'id': fine.id,
+                'policy': {
+                    'id': fine.policy.id,
+                    'name': fine.policy.name,
+                    'amount': fine.policy.amount
+                }
+            })
+        return Response(data=ret, status=200)
 
 
 class MyMeetingFineList(generics.ListAPIView):
@@ -62,19 +72,17 @@ class ManageFine(APIView):
         userId = self.request.query_params.get('userId', None)
         meetingId = self.request.query_params.get('meetingId', None)
         policyId = self.request.query_params.get('policyId', None)
-        if not StudyUser.objects.get(pk=userId).exists() or not StudyMeeting.objects.get(pk=meetingId).exists() or not Policy.objects.get(pk=policyId).exists():
+        if not StudyUser.objects.filter(pk=userId).exists() or not StudyMeeting.objects.filter(pk=meetingId).exists() or not Policy.objects.filter(pk=policyId).exists():
             raise Http404
         studyuser = StudyUser.objects.get(pk=userId)
         studymeeting = StudyMeeting.objects.get(pk=meetingId)
         policy = Policy.objects.get(pk=policyId)
-        if not Fine.objects.filter(user=studyuser, meeting=sturymeeting, policy=policy).exists():
+        if not Fine.objects.filter(user=studyuser, meeting=studymeeting, policy=policy).exists():
             fine = Fine(user=studyuser, meeting=studymeeting, policy=policy)
             fine.save()
         else:
-            Fine.objects.get(user=studyuser, meeting=studymeeting, policy=policy)
-            fine.delete()
-        serializer = FineSerializer(Fine.objects.filter(meeting=studymeeting), many=True)
-        return Response(data=serializer.data, status=200)
+            Fine.objects.get(user=studyuser, meeting=studymeeting, policy=policy).delete()
+        return Response(status=200)
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>

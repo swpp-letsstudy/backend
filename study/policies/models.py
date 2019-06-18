@@ -25,7 +25,7 @@ class Fine(models.Model):
         return self.user
     created = models.DateTimeField(auto_now_add=True)
 
-    policy = models.ForeignKey(Policy, related_name='meeting_fines', on_delete=models.CASCADE)
-    meeting = models.ForeignKey(StudyMeeting, related_name='meeting_fines', on_delete=models.CASCADE)
+    policy = models.ForeignKey(Policy, related_name='fines', on_delete=models.CASCADE)
+    meeting = models.ForeignKey(StudyMeeting, related_name='fines', on_delete=models.CASCADE)
     user = models.ForeignKey(StudyUser, related_name='fines', on_delete=models.CASCADE, null=True)
 

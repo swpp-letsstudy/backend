@@ -6,7 +6,7 @@ from study.users.views import MyLoginView, MyRegisterView, MySignOutView
 from study.study_users.views import StudyUserView
 from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup, OpenCloseStudyGroup, SetAttendanceFine, GetAttendanceFine
 from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoticeDetail, StudyGroupNoticeListFew
-from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail, StudyMeetingListFew
+from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail, StudyMeetingListFew, MeetingFineList
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
 from study.policies.views import GetFineSum, PolicyList, PolicyDetail, MyGroupFineList, MyMeetingFineList, ManageFine
@@ -45,6 +45,7 @@ urlpatterns += [
 
     path('get_sum/', GetFineSum.as_view()),                                 # GET, ?groupId=<groupId>
     path('attendance/', AttendanceView.as_view()),                          # GET, POST, if GET => ?meetingId=<meetingId>
+    path('meeting_fines/', MeetingFineList.as_view()),                     # GET, ?meetingId=<meetingId>
     path('manage_fine/', ManageFine.as_view()),                             # GET, ?userId=<userId>&meetingId=<meetingId>&policyId=<policyId>
     path('my_group_fines/', MyGroupFineList.as_view()),                     # GET, ?groupId=<groupId>
     path('my_meeting_fines/', MyMeetingFineList.as_view()),                 # GET, ?meetingId=<meetingId>
