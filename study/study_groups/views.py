@@ -28,6 +28,19 @@ class SetAttendanceFine(APIView):
         return Response('successed', status=200)
 
 
+class GetAttendanceFine(APIView):
+    # GET
+    def get(self, request, format=None):
+        studyuser = StudyUser.objects.get(user=request.user)
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        if not studyuser in studygroup.members.all():
+            raise Http404
+        return Response(data=studygroup.attendance_amount, status=200)
+
+
 class StudyGroupList(generics.ListCreateAPIView): # groups/
     # GET get user's StudyGroups
     # POST { name, info }, create user's StudyGroup
