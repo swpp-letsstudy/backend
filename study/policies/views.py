@@ -19,11 +19,9 @@ class GetFineSum(APIView):
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
         studyuser = StudyUser.objects.get(user=self.request.user)
-        meeting_fines = MeetingFine.objects.filter(policy__group=studygroup)
-        fine_sum = 0
-        for meeting_fine in meeting_fines:
-            if Fine.objects.filter(meeting_fine=meeting_fine, user=studyuser).exists():
-                fine_sum += meeting_fine.policy.amount
+        fines = Fine.objects.filter(meeting__group=studygroup, user=studyuser)
+        for fine in fines:
+            fine_sum += fine.policy.amount
         attendance_amount = studygroup.attendance_amount
         for meeting in studygroup.study_meetings.all():
             if not Attendance.objects.filter(meeting=meeting, user=studyuser).exists():
@@ -41,7 +39,7 @@ class MyGroupFineList(generics.ListAPIView):
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
         studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(meeting_fine__policy__group=studygroup, user=studyuser)
+        return Fine.objects.filter(policy__group=studygroup, user=studyuser)
 
 
 class MyMeetingFineList(generics.ListAPIView):
@@ -53,9 +51,8 @@ class MyMeetingFineList(generics.ListAPIView):
         if not StudyMeeting.objects.filter(pk=meetingId).exists():
             raise Http404
         studymeeting = StudyMeeting.objects.get(pk=meetingId)
-        meeting_fine = MeetingFine.objects.get(meeting=studymeeting)
         studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(meeting_fine=meeting_fine, user=studyuser)
+        return Fine.objects.filter(meeting=studymeeting, user=studyuser)
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
@@ -112,54 +109,4 @@ class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>/?
         if not user in policy.group.members.all():
             raise Http404
         policy.delete()
-
-
-class MeetingFineList(generics.ListCreateAPIView): # meeting_fines/?meetingId=<meetingId>
-    # GET get StudyMeeting(id=meetingId)'s MeetingFines
-    # POST 
-    serializer_class = MeetingFineSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        user = StudyUser.objects.get(user=self.request.user)
-        meetingId = self.request.query_params.get('meetingId', None)
-        meeting = StudyMeeting.objects.get(pk=meetingId)
-        if not user in meeting.group.members.all():
-            raise Http404
-        return MeetingFine.objects.filter(meeting=meeting)
-
-    def perform_create(self, serializer):
-        user = StudyUser.objects.get(user=self.request.user)
-        meetingId = self.request.query_params.get('meetingId', None)
-        meeting = StudyMeeting.objects.get(pk=meetingId)
-        if not user in meeting.group.members.all():
-            raise Http404
-        serializer.save(meeting=meeting)
-    
-
-class MeetingFineDetail(generics.RetrieveUpdateDestroyAPIView): # meeting_fines/<int:pk>/?meetingId=<meetingId>
-    # GET get MeetingFineSerializer(MeetingFine(pk=pk)).data
-    # PUT update MeetingFine(pk=pk) with request.data
-    # DELETE if user is owner of group of MeetingFine, delete
-    serializer_class = MeetingFineSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def perform_update(self, serializer):
-        user = StudyUser.objects.get(user=self.request.user)
-        meeting_fine = MeetingFine.objects.get(pk=self.kwargs['pk'])
-        if not user in meeting_fine.meeting.group.members.all():
-            raise Http404
-        serializer = MeetingFineSerializer(meeting_fine, data=self.request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            raise Http404
-
-    def perform_destroy(self, request, *argc, **kwargs):
-        user = StudyUser.objects.get(user=self.request.user)
-        meeting_fine = MeetingFine.objects.get(pk=self.kwargs['pk'])
-        if not user in meeting_fine.group.members.all():
-            raise Http404
-        meeting_fine.delete()
 

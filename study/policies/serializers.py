@@ -14,19 +14,12 @@ class PolicySerializer(serializers.ModelSerializer):
         fields = ('id', 'group', 'name', 'info', 'amount')
 
 
-class MeetingFineSerializer(serializers.ModelSerializer):
+class FineSerializer(serializers.ModelSerializer):
     policy = PolicySerializer(read_only=True)
     meeting = StudyMeetingSerializer(read_only=True)
-
-    class Meta:
-        model = MeetingFine
-        fields = ('id', 'policy', 'meeting')
-
-
-class FineSerializer(serializers.ModelSerializer):
-    meeting_fine = MeetingFineSerializer(read_only=True)
     user = StudyUserSerializer(read_only=True)
     
     class Meta:
         model = Fine
-        fields = ('id', 'meeting_fine', 'user')
+        fields = ('id', 'policy', 'meeting', 'user')
+
