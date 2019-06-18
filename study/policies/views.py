@@ -62,19 +62,17 @@ class ManageFine(APIView):
         userId = self.request.query_params.get('userId', None)
         meetingId = self.request.query_params.get('meetingId', None)
         policyId = self.request.query_params.get('policyId', None)
-        if not StudyUser.objects.get(pk=userId).exists() or not StudyMeeting.objects.get(pk=meetingId).exists() or not Policy.objects.get(pk=policyId).exists():
+        if not StudyUser.objects.filter(pk=userId).exists() or not StudyMeeting.objects.filter(pk=meetingId).exists() or not Policy.objects.filter(pk=policyId).exists():
             raise Http404
         studyuser = StudyUser.objects.get(pk=userId)
         studymeeting = StudyMeeting.objects.get(pk=meetingId)
         policy = Policy.objects.get(pk=policyId)
-        if not Fine.objects.filter(user=studyuser, meeting=sturymeeting, policy=policy).exists():
+        if not Fine.objects.filter(user=studyuser, meeting=studymeeting, policy=policy).exists():
             fine = Fine(user=studyuser, meeting=studymeeting, policy=policy)
             fine.save()
         else:
-            Fine.objects.get(user=studyuser, meeting=studymeeting, policy=policy)
-            fine.delete()
-        serializer = FineSerializer(Fine.objects.filter(meeting=studymeeting), many=True)
-        return Response(data=serializer.data, status=200)
+            Fine.objects.get(user=studyuser, meeting=studymeeting, policy=policy).delete()
+        return Response(status=200)
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>

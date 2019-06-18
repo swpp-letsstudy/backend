@@ -3,11 +3,12 @@ from rest_framework import serializers
 from .models import StudyMeeting
 from study.study_users.serializers import StudyUserSerializer
 from study.study_groups.models import StudyGroup
+from study.policies.models import Fine
 from study.study_groups.serializers import StudyGroupSerializer
 from study.attendances.serializers import AttendanceSerializer
 
 class StudyGroupMembersSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    owner = serializers.StringRelatedField(read_only=True)
     members = StudyUserSerializer(many=True, read_only=True)
 
     class Meta:
@@ -22,3 +23,4 @@ class StudyMeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyMeeting
         fields = ('id', 'time', 'info', 'group', 'attendances')
+

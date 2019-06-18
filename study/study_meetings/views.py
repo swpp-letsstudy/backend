@@ -1,4 +1,4 @@
-import datetime
+import datetime, json
 from pytz import utc
 from django.http import Http404
 from rest_framework import generics
@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from study.study_users.models import StudyUser
 from study.study_groups.models import StudyGroup
 from .models import StudyMeeting
+from study.policies.models import Policy, Fine
 from .serializers import StudyMeetingSerializer
 from study.permissions import IsMeetingMember
 
@@ -66,4 +67,24 @@ class StudyMeetingDetail(generics.RetrieveDestroyAPIView): # meetings/<int:pk>/?
     permission_classes = (IsAuthenticated, IsMeetingMember)
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer
-    
+
+
+class MeetingFineList(APIView):
+    # GET
+    def get(self, request, format=None):
+        studyuser = StudyUser.objects.get(user=request.user)
+        meetingId = self.request.query_params.get('meetingId', None)
+        if not StudyMeeting.objects.filter(pk=meetingId).exists():
+            raise Http404
+        studymeeting = StudyMeeting.objects.get(pk=meetingId)
+        if not studymeeting.group.owner == studyuser:
+            raise Http404
+        Fine.objects.filter(meeting=studymeeting)
+        ret = {}
+        for policy in Policy.objects.filter(group=studymeeting.group):
+            ret[policy.id] = []
+        for i in ret.keys():
+            for fine in Fine.objects.filter(meeting=studymeeting, policy=Policy.objects.get(pk=i)):
+                ret[i].append(fine.user.id)
+        return Response(data=ret, status=200)
+
