@@ -16,6 +16,7 @@ class Command(BaseCommand):
 
     def __init__(self):
         super().__init__()
+        self.now = datetime.datetime.now(pytz.utc) + datetime.timedelta(hours=9)
 
     def delete_database(self):
         print('Delete database')
@@ -102,14 +103,12 @@ class Command(BaseCommand):
     def create_meetings(self):
         print("Create StudyMeetings")
         for study_group in StudyGroup.objects.all():
-            for user in study_group.members.all():
-                i = user.nickname[-1]
-                for j in range(0, 24):
-                    StudyMeeting.objects.create(
-                        group=study_group,
-                        time=datetime.datetime.now(pytz.utc).replace(hour=j, second=0, microsecond=0),
-                        info='Meeting%c info' % i
-                    )
+            for j in range(0, 24):
+                StudyMeeting.objects.create(
+                    group=study_group,
+                    time=self.now.replace(hour=j, second=0, microsecond=0),
+                    info='Meeting info%d' % j
+                )
         self.study_meetings = StudyMeeting.objects.all()
 
     def create_meeting_notices(self):

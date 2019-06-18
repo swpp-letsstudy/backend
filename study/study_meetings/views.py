@@ -1,4 +1,5 @@
-import datetime, pytz
+import datetime
+from pytz import utc
 from django.http import Http404
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -28,7 +29,7 @@ class StudyMeetingListFew(generics.ListAPIView):
             raise Http404
         studygroups = StudyGroup.objects.get(members__in=[user], pk=groupId)
         studymeetings = StudyMeeting.objects.filter(group=studygroups)
-        now = datetime.datetime.now(pytz.utc)
+        now = datetime.datetime.now(utc) + datetime.timedelta(hours=9)
         few_studymeetings = []
         cnt = 0
         for studymeeting in studymeetings:
