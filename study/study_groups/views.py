@@ -45,7 +45,6 @@ class StudyGroupList(generics.ListCreateAPIView): # groups/
 
 class StudyGroupDetail(generics.RetrieveDestroyAPIView): # groups/<int:pk>/
     # GET get StudyGroup(pk=pk)'s detail
-    # PUT update StudyGroup(pk=pk)'s detail
     # DELETE delete StudyGroup(pk=pk) when request.user is owner
       #                               else remove request.user in members
     permission_classes = (IsAuthenticated, IsGroupMember)

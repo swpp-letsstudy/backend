@@ -11,10 +11,22 @@ from .serializers import StudyMeetingSerializer
 from study.permissions import IsMeetingMember
 
 
+class StudyMeetingListFew(generics.ListAPIView):
+    serializer_class = StudyMeetingSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = StudyUser.objects.get(user=self.request.user)
+        groupId = self.request.query_params.get('groupId', None)
+        study_groups = StudyGroup.objects.filter(members__in=[user], id=groupId)
+        return StudyMeeting.objects.filter(group__in=study_groups)
+
+
 class StudyMeetingList(generics.ListCreateAPIView): # meetings/?groupId=<groupId>
     # GET get StudyMeeting
     # POST { time, info }
     serializer_class = StudyMeetingSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         user = StudyUser.objects.get(user=self.request.user)
@@ -31,7 +43,7 @@ class StudyMeetingList(generics.ListCreateAPIView): # meetings/?groupId=<groupId
         serializer.save(group=group)
 
 
-class StudyMeetingDetail(generics.RetrieveUpdateDestroyAPIView): # meetings/<int:pk>/?groupId=<groupId>
+class StudyMeetingDetail(generics.RetrieveDestroyAPIView): # meetings/<int:pk>/?groupId=<groupId>
     permission_classes = (IsAuthenticated, IsMeetingMember)
     queryset = StudyMeeting.objects.all()
     serializer_class = StudyMeetingSerializer

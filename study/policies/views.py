@@ -11,19 +11,6 @@ from study.attendances.models import Attendance
 from .models import *
 from .serializers import *
 
-class MyFineList(generics.ListAPIView):
-    serializer_class = FineSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        groupId = self.request.query_params.get('groupId', None)
-        if not StudyGroup.objects.filter(pk=groupId).exists():
-            raise Http404
-        studygroup = StudyGroup.objects.get(pk=groupId)
-        studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(meeting_fine__policy__group=studygroup, user=studyuser)
-
-
 class GetFineSum(APIView):
     # GET
     def get(self, request, format=None):
@@ -44,17 +31,31 @@ class GetFineSum(APIView):
         return Response(data=fine_sum, status=200)
 
 
-class MeetingFineList(generics.ListAPIView):
-    # GET
+class MyGroupFineList(generics.ListAPIView):
     serializer_class = FineSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists():
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        studyuser = StudyUser.objects.get(user=self.request.user)
+        return Fine.objects.filter(meeting_fine__policy__group=studygroup, user=studyuser)
+
+
+class MyMeetingFineList(generics.ListAPIView):
+    serializer_class = FineSerializer
+    permission_classes = (IsAuthenticated,)
+
     def get_queryset(self):
         meetingId = self.request.query_params.get('meetingId', None)
         if not StudyMeeting.objects.filter(pk=meetingId).exists():
             raise Http404
         studymeeting = StudyMeeting.objects.get(pk=meetingId)
+        meeting_fine = MeetingFine.objects.get(meeting=studymeeting)
         studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(meeting_fine__meeting=studymeeting, user=StudyUser)
+        return Fine.objects.filter(meeting_fine=meeting_fine, user=studyuser)
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
