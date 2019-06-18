@@ -13,18 +13,18 @@ class Policy(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     group = models.ForeignKey(StudyGroup, related_name='policies', on_delete=models.CASCADE)
-    name = models.CharField(max_length=20)
-    amount = models.IntegerField(default=1)
+    name = models.CharField(max_length=20, default='')
+    info = models.CharField(max_length=100, default='')
+    amount = models.IntegerField(default=100)
 
 
 class MeetingFine(models.Model):
     class Meta:
         ordering = ('created',)
     def __str__(self):
-        return self.name
+        return self.policy.name
     created = models.DateTimeField(auto_now_add=True)
 
-    name = models.CharField(max_length=20)
     policy = models.ForeignKey(Policy, related_name='meeting_fines', on_delete=models.CASCADE)
     meeting = models.ForeignKey(StudyMeeting, related_name='meeting_fines', on_delete=models.CASCADE)
 
@@ -38,5 +38,4 @@ class Fine(models.Model):
 
     meeting_fine = models.ForeignKey(MeetingFine, related_name='fines', on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(StudyUser, related_name='fines', on_delete=models.CASCADE, null=True)
-    count = models.IntegerField(default=0)
 

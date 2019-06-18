@@ -4,12 +4,12 @@ from rest_auth.views import LogoutView
 
 from study.users.views import MyLoginView, MyRegisterView, MySignOutView
 from study.study_users.views import StudyUserView
-from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup, OpenCloseStudyGroup
+from study.study_groups.views import StudyGroupList, StudyGroupDetail, JoinStudyGroup, OpenCloseStudyGroup, SetAttendanceFine
 from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoticeDetail
 from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
-from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail
+from study.policies.views import PolicyList, PolicyDetail, MeetingFineList, MeetingFineDetail, MyFineList, GetFineSum, MeetingFineList
 from study.cloud_storage.views import CloudStorageFileDetail, CloudStorageFileCreate, CloudStorageFileTree, CloudStorageFileDelete
 
 
@@ -29,6 +29,7 @@ urlpatterns += [
     path('groups/<int:pk>/', StudyGroupDetail.as_view()),                   # GET, PUT, DELETE
     path('join_group/', JoinStudyGroup.as_view()),                          # GET, ?token=<token>
     path('openclose_group/', OpenCloseStudyGroup.as_view()),                # GET, ?groupId=<groupId>
+    path('set_attendance_fine/', SetAttendanceFine.as_view()),              # GET, ?groupId=<groupId>&amount=<amount>
 
     path('group_notices/', StudyGroupNoticeList.as_view()),                 # GET, POST ?groupId=<groupId>
     path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),      # GET, PUT, DELETE ?groupId=<groupId>
@@ -40,11 +41,13 @@ urlpatterns += [
     path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, PUT, DELETE ?meetingId=<meetingId>
     
     path('attendance/', AttendanceView.as_view()),                          # POST
+    path('my_fines/', MyFineList.as_view()),                                # GET, ?groupId=<groupId>
+    path('sum_of_fines/', GetFineSum.as_view()),                            # GET, ?groupId=<groupId>
+    
     path('policies/', PolicyList.as_view()),                                # GET, POST ?groupId=<groupId>
     path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE ?groupId=<groupId>
-    path('meeting_fines/', MeetingFineList.as_view()),                      # GET, POST ?meetingId=<meetingId>
-    path('meeting_fines/<int:pk>/', MeetingFineDetail.as_view()),           # GET, PUT, DELETE ?meetingId=<meetingId>
-
+    path('meeting_fines/', MeetingFineList.as_view()),                      # GET, ?meetingId=<meetingId>
+    
     path('cloud_storage/', CloudStorageFileTree.as_view()),                 # GET ?groupId=<groupId>
     path('cloud_storage/delete/', CloudStorageFileDelete.as_view()),        # POST
     path('cloud_storage/get_url/get/', CloudStorageFileDetail.as_view()),   # POST

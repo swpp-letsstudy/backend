@@ -116,6 +116,7 @@ class Command(BaseCommand):
             Policy.objects.create(
                 group=study_group,
                 name='policy',
+                info='info',
                 amount=random.randint(1, 3)
             )
         self.policies = Policy.objects.all()
@@ -124,7 +125,6 @@ class Command(BaseCommand):
         print("Create MeetingFines")
         for study_meeting in self.study_meetings:
             MeetingFine.objects.create(
-                name='MeetingFine%d' % study_meeting.id,
                 policy=study_meeting.group.policies.all()[0],
                 meeting=study_meeting
             )
@@ -136,8 +136,7 @@ class Command(BaseCommand):
             for user in meeting_fine.meeting.group.members.all():
                 Fine.objects.create(
                     meeting_fine=meeting_fine,
-                    user=user,
-                    count=random.randint(1, 11)
+                    user=user
                 )
 
     def handle(self, *args, **options):
