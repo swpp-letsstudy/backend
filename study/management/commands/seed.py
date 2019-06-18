@@ -79,17 +79,18 @@ class Command(BaseCommand):
         for study_group in self.study_groups:
             for user in study_group.members.all():
                 i = user.nickname[-1]
-                StudyGroupNotice.objects.create(
-                    writer=user,
-                    group=study_group,
-                    title='GroupNotice title%c' % i,
-                    contents='GroupNotice contents%c' % i
-                )
+                for j in range(0, 15):
+                    StudyGroupNotice.objects.create(
+                        writer=user,
+                        group=study_group,
+                        title='GroupNotice title%d%c' % (j, i),
+                        contents='GroupNotice contents%d%c' % (j, i)
+                    )
 
     def create_policies(self):
         print("Create Policies")
         for study_group in self.study_groups:
-            for i in range(1, 3):
+            for i in range(1, 4):
                 Policy.objects.create(
                     group=study_group,
                     name='policy%d' % i,
@@ -103,11 +104,12 @@ class Command(BaseCommand):
         for study_group in StudyGroup.objects.all():
             for user in study_group.members.all():
                 i = user.nickname[-1]
-                StudyMeeting.objects.create(
-                    group=study_group,
-                    time=datetime.datetime.now(pytz.utc).replace(second=0, microsecond=0),
-                    info='Meeting%c info' % i,
-                )
+                for j in range(0, 24):
+                    StudyMeeting.objects.create(
+                        group=study_group,
+                        time=datetime.datetime.now(pytz.utc).replace(hour=j, second=0, microsecond=0),
+                        info='Meeting%c info' % i
+                    )
         self.study_meetings = StudyMeeting.objects.all()
 
     def create_meeting_notices(self):
@@ -115,23 +117,25 @@ class Command(BaseCommand):
         for meeting in self.study_meetings:
             for user in meeting.group.members.all():
                 i = user.nickname[-1]
-                StudyMeetingNotice.objects.create(
-                    writer=user,
-                    meeting=meeting,
-                    title='MeetingNotice title%c' % i,
-                    contents='MeetingNotice contents%c' % i
-                )
+                for j in range(0, 5):
+                    StudyMeetingNotice.objects.create(
+                        writer=user,
+                        meeting=meeting,
+                        title='MeetingNotice title%d%c' % (j, i),
+                        contents='MeetingNotice contents%d%c' % (j, i)
+                    )
 
     def create_fines(self):
         print("Create Fines")
         for meeting in self.study_meetings:
             for user in meeting.group.members.all():
                 for policy in meeting.group.policies.all():
-                    Fine.objects.create(
-                        meeting=meeting,
-                        policy=policy,
-                        user=user
-                    )
+                    if random.randint(0, 1) == 0:
+                        Fine.objects.create(
+                            meeting=meeting,
+                            policy=policy,
+                            user=user
+                        )
 
     def handle(self, *args, **options):
         self.delete_database()
