@@ -7,12 +7,6 @@ from .serializers import StudyUserSerializer
 
 
 class StudyUserView(APIView): # user_setting/
-    # GET get request.user's StudyUser return { { username, password }, nickname }
-    def get(self, request, format=None):
-        studyuser = StudyUser.objects.get(user=request.user)
-        serializer = StudyUserSerializer(studyuser)
-        return Response(serializer.data)
-
     # PUT { { username, password }, nickname }, update request.user's StudyUser and return updated 
     def put(self, request, format=None):
         if not 'nickname' in request.data.keys():
@@ -27,4 +21,4 @@ class StudyUserView(APIView): # user_setting/
         studyuser = StudyUser.objects.get(user=user)
         studyuser.nickname = nickname
         studyuser.save()
-        return Response(StudyUserSerializer(studyuser).data)
+        return Response(data=nickname, status=200)

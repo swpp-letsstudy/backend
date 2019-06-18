@@ -16,3 +16,4 @@ class StudyGroup(models.Model):
     info = models.CharField(default='', max_length=100)
     is_open = models.BooleanField(default=False)
     attendance_amount = models.IntegerField(default=0)
+

@@ -67,10 +67,3 @@ class GroupTestCase(APITestCase):
         
         response = self.get('/group_notices/{}/?groupId={}'.format(notice_id, group_id))
         self.assertEqual(response.status_code, 200)
-
-        data = {
-            'title': 'titleupdate',
-            'contents': 'contentsupdate',
-        }
-        response = self.put('/group_notices/{}/?groupId={}'.format(notice_id, group_id), data)
-        self.assertEqual(response.status_code, 200)

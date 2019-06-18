@@ -18,17 +18,6 @@ class Policy(models.Model):
     amount = models.IntegerField(default=100)
 
 
-class MeetingFine(models.Model):
-    class Meta:
-        ordering = ('created',)
-    def __str__(self):
-        return self.policy.name
-    created = models.DateTimeField(auto_now_add=True)
-
-    policy = models.ForeignKey(Policy, related_name='meeting_fines', on_delete=models.CASCADE)
-    meeting = models.ForeignKey(StudyMeeting, related_name='meeting_fines', on_delete=models.CASCADE)
-
-
 class Fine(models.Model):
     class Meta:
         ordering = ('created',)
@@ -36,6 +25,7 @@ class Fine(models.Model):
         return self.user
     created = models.DateTimeField(auto_now_add=True)
 
-    meeting_fine = models.ForeignKey(MeetingFine, related_name='fines', on_delete=models.CASCADE, null=True)
+    policy = models.ForeignKey(Policy, related_name='meeting_fines', on_delete=models.CASCADE)
+    meeting = models.ForeignKey(StudyMeeting, related_name='meeting_fines', on_delete=models.CASCADE)
     user = models.ForeignKey(StudyUser, related_name='fines', on_delete=models.CASCADE, null=True)
 

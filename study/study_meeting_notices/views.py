@@ -7,7 +7,7 @@ from study.study_users.models import StudyUser
 from study.study_meetings.models import StudyMeeting
 from .models import StudyMeetingNotice
 from .serializers import StudyMeetingNoticeSerializer
-
+from study.permissions import IsMeetingNoticeMember
 
 class StudyMeetingNoticeList(generics.ListCreateAPIView): # meeting_notices/?meetingId=<meetingId>
     # GET get StudyMeeting(id=meetingId)'s StudyMeetingNotices
@@ -32,25 +32,13 @@ class StudyMeetingNoticeList(generics.ListCreateAPIView): # meeting_notices/?mee
         serializer.save(writer=user, meeting=meeting)
 
 
-class StudyMeetingNoticeDetail(generics.RetrieveUpdateDestroyAPIView): # meeting_notices/<int:pk>/?meetingId=<meetingId>
+class StudyMeetingNoticeDetail(generics.RetrieveDestroyAPIView): # meeting_notices/<int:pk>/?meetingId=<meetingId>
     # GET
     # PUT
     # DELETE
     serializer_class = StudyMeetingNoticeSerializer
     queryset = StudyMeetingNotice.objects.all()
-    permission_classes = (IsAuthenticated,)
-
-    def perform_update(self, serializer):
-        user = StudyUser.objects.get(user=self.request.user)
-        meeting_notice = StudyMeetingNotice.objects.get(pk=self.kwargs['pk'])
-        if meeting_notice.writer != user:
-            raise Http404
-        serializer = StudyMeetingSerializer(meeting_notice, data=self.request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            raise Http404
+    permission_classes = (IsAuthenticated, IsMeetingNoticeMember)
 
     def perform_destroy(self, request, *argc, **kwargs):
         user = StudyUser.objects.get(user=self.request.user)
