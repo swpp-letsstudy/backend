@@ -31,16 +31,26 @@ class GetFineSum(APIView):
 
 
 class MyGroupFineList(generics.ListAPIView):
-    serializer_class = FineSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
+    # GET
+    def get(self, request, format=None):
         groupId = self.request.query_params.get('groupId', None)
-        if not StudyGroup.objects.filter(pk=groupId).exists():
+        if not StudyGroup.objects.filter(pk=groupId).exists() or not StudyUser.objects.filter(user=request.user):
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
-        studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(policy__group=studygroup, user=studyuser)
+        studyuser = StudyUser.objects.get(user=request.user)
+        ret = {}
+        for fine in Fine.objects.filter(policy__group=studygroup, user=studyuser):
+            if not fine.meeting.info in ret:
+                ret[fine.meeting.info] = []
+            ret[fine.meeting.info].append({
+                'id': fine.id,
+                'policy': {
+                    'id': fine.policy.id,
+                    'name': fine.policy.name,
+                    'amount': fine.policy.amount
+                }
+            })
+        return Response(data=ret, status=200)
 
 
 class MyMeetingFineList(generics.ListAPIView):

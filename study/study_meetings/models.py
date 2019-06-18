@@ -13,5 +13,5 @@ class StudyMeeting(models.Model):
 
     group = models.ForeignKey(StudyGroup, related_name='study_meetings', on_delete=models.CASCADE)
     time = models.DateTimeField()
-    info = models.CharField(default='', max_length=100)
+    info = models.CharField(default='', max_length=20)
 

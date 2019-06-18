@@ -1,4 +1,4 @@
-import datetime, json
+import datetime
 from pytz import utc
 from django.http import Http404
 from rest_framework import generics
