@@ -9,7 +9,7 @@ from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoti
 from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail, StudyMeetingListFew
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
-from study.policies.views import GetFineSum, PolicyList, PolicyDetail, MyGroupFineList, MyMeetingFineList
+from study.policies.views import GetFineSum, PolicyList, PolicyDetail, MyGroupFineList, MyMeetingFineList, ManageFine
 from study.cloud_storage.views import CloudStorageFileDetail, CloudStorageFileCreate, CloudStorageFileTree, CloudStorageFileDelete
 
 
@@ -27,9 +27,8 @@ urlpatterns += [
 
     path('groups/', StudyGroupList.as_view()),                              # GET, POST
     path('groups/<int:pk>/', StudyGroupDetail.as_view()),                   # GET, DELETE
-    path('join_group/', JoinStudyGroup.as_view()),                          # GET, ?groupId=<groupId>
-    path('get_sum/', GetFineSum.as_view()),                                 # GET, ?groupId=<groupId>
     path('openclose_group/', OpenCloseStudyGroup.as_view()),                # GET, ?groupId=<groupId>
+    path('join_group/', JoinStudyGroup.as_view()),                          # GET, ?groupId=<groupId>
     path('set_attendance_fine/', SetAttendanceFine.as_view()),              # GET, ?groupId=<groupId>&amount=<amount>
 
     path('group_notices/', StudyGroupNoticeList.as_view()),                 # GET, POST ?groupId=<groupId>
@@ -43,10 +42,11 @@ urlpatterns += [
     path('meeting_notices/', StudyMeetingNoticeList.as_view()),             # GET, POST ?meetingId=<meetingId>
     path('meeting_notices/<int:pk>/', StudyMeetingNoticeDetail.as_view()),  # GET, DELETE ?meetingId=<meetingId>
 
+    path('get_sum/', GetFineSum.as_view()),                                 # GET, ?groupId=<groupId>
+    path('attendance/', AttendanceView.as_view()),                          # GET, POST, if GET => ?meetingId=<meetingId>
+    path('manage_fine/', ManageFine.as_view()),                             # GET, ?userId=<userId>&meetingId=<meetingId>&policyId=<policyId>
     path('my_group_fines/', MyGroupFineList.as_view()),                     # GET, ?groupId=<groupId>
     path('my_meeting_fines/', MyMeetingFineList.as_view()),                 # GET, ?meetingId=<meetingId>
-    
-    path('attendance/', AttendanceView.as_view()),                          # GET, POST, if GET => ?meetingId=<meetingId>
     
     path('policies/', PolicyList.as_view()),                                # GET, POST ?groupId=<groupId>
     path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE ?groupId=<groupId>

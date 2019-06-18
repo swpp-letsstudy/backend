@@ -22,15 +22,17 @@ class StudyGroupNoticeListFew(generics.ListAPIView): # group_notices/?groupId=<g
         group = StudyGroup.objects.get(id=groupId)
         if not user in group.members.all():
             raise Http404
-        studygroups = StudyGroupNotice.objects.filter(group=group)
         try:
             num = int(num)
         except ValueError:
             raise Http404
-        if num > int((len(studygroups)+2)/3):
+        studygroups = StudyGroupNotice.objects.filter(group=group)
+        l = len(studygroups)
+        if num > int((l+2)/3):
             raise Http404
         few_studygroups = []
-        for i in range(min(num*3+3, len(studygroups))-1, num*3-1, -1):
+        f = l-num*3-1
+        for i in range(l-1, max(f-3, -1), -1):
             few_studygroups.append(studygroups[i])
         return few_studygroups
 

@@ -20,6 +20,7 @@ class GetFineSum(APIView):
         studygroup = StudyGroup.objects.get(pk=groupId)
         studyuser = StudyUser.objects.get(user=self.request.user)
         fines = Fine.objects.filter(meeting__group=studygroup, user=studyuser)
+        fine_sum = 0
         for fine in fines:
             fine_sum += fine.policy.amount
         attendance_amount = studygroup.attendance_amount
@@ -53,6 +54,27 @@ class MyMeetingFineList(generics.ListAPIView):
         studymeeting = StudyMeeting.objects.get(pk=meetingId)
         studyuser = StudyUser.objects.get(user=self.request.user)
         return Fine.objects.filter(meeting=studymeeting, user=studyuser)
+
+
+class ManageFine(APIView):
+    # GET
+    def get(self, request, format=None):
+        userId = self.request.query_params.get('userId', None)
+        meetingId = self.request.query_params.get('meetingId', None)
+        policyId = self.request.query_params.get('policyId', None)
+        if not StudyUser.objects.get(pk=userId).exists() or not StudyMeeting.objects.get(pk=meetingId).exists() or not Policy.objects.get(pk=policyId).exists():
+            raise Http404
+        studyuser = StudyUser.objects.get(pk=userId)
+        studymeeting = StudyMeeting.objects.get(pk=meetingId)
+        policy = Policy.objects.get(pk=policyId)
+        if not Fine.objects.filter(user=studyuser, meeting=sturymeeting, policy=policy).exists():
+            fine = Fine(user=studyuser, meeting=studymeeting, policy=policy)
+            fine.save()
+        else:
+            Fine.objects.get(user=studyuser, meeting=studymeeting, policy=policy)
+            fine.delete()
+        serializer = FineSerializer(Fine.objects.filter(meeting=studymeeting), many=True)
+        return Response(data=serializer.data, status=200)
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
