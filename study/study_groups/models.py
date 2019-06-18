@@ -16,4 +16,12 @@ class StudyGroup(models.Model):
     info = models.CharField(default='', max_length=100)
     is_open = models.BooleanField(default=False)
     attendance_amount = models.IntegerField(default=0)
-
+    startday = models.DateField(default = '2000-01-01')
+    endday = models.DateField(default = '2000-12-31')
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    wednesday = models.BooleanField(default=False)
+    thursday = models.BooleanField(default=False)
+    friday = models.BooleanField(default=False)
+    saturday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=False)
