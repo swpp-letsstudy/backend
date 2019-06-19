@@ -22,12 +22,14 @@ class GetFineSum(APIView):
         studygroup = StudyGroup.objects.get(pk=groupId)
         studyuser = StudyUser.objects.get(user=self.request.user)
         fines = Fine.objects.filter(meeting__group=studygroup, user=studyuser)
+        now = datetime.datetime.now(utc) + datetime.timedelta(hours=9)
         fine_sum = 0
         for fine in fines:
-            fine_sum += fine.policy.amount
+            if fine.meeting.time < now:
+                fine_sum += fine.policy.amount
         attendance_amount = studygroup.attendance_amount
         for meeting in studygroup.study_meetings.all():
-            if not Attendance.objects.filter(meeting=meeting, user=studyuser).exists():
+            if not Attendance.objects.filter(meeting=meeting, user=studyuser).exists() and meeting.time < now:
                 fine_sum += attendance_amount
         return Response(data=fine_sum, status=200)
 
@@ -42,7 +44,10 @@ class MyGroupFineList(APIView):
         studyuser = StudyUser.objects.get(user=request.user)
         studymeetings = StudyMeeting.objects.filter(group=studygroup)
         ret = []
+        now = datetime.datetime.now(utc) + datetime.timedelta(hours=9)
         for studymeeting in studymeetings:
+            if studymeeting.time > now:
+                continue
             isAttendance = Attendance.objects.filter(meeting=studymeeting, user=studyuser).exists()
             fines = Fine.objects.filter(meeting=studymeeting, user=studyuser)
             if isAttendance and fines.count() == 0:
