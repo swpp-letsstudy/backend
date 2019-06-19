@@ -9,7 +9,7 @@ from study.study_group_notices.views import StudyGroupNoticeList, StudyGroupNoti
 from study.study_meetings.views import StudyMeetingList, StudyMeetingDetail, StudyMeetingListFew, MeetingFineList
 from study.study_meeting_notices.views import StudyMeetingNoticeList, StudyMeetingNoticeDetail
 from study.attendances.views import AttendanceView
-from study.policies.views import GetFineSum, PolicyList, PolicyDetail, MyGroupFineList, MyMeetingFineList, ManageFine
+from study.policies.views import GetFineSum, PolicyList, PolicyDetail, MyGroupFineList, MyMeetingFineList, ManageFine, GetSuccessRate
 from study.cloud_storage.views import CloudStorageFileDetail, CloudStorageFileCreate, CloudStorageFileTree, CloudStorageFileDelete
 
 
@@ -31,6 +31,7 @@ urlpatterns += [
     path('join_group/', JoinStudyGroup.as_view()),                          # GET, ?groupId=<groupId>
     path('set_attendance_fine/', SetAttendanceFine.as_view()),              # GET, ?groupId=<groupId>&amount=<amount>
     path('get_attendance_fine/', GetAttendanceFine.as_view()),              # GET, ?groupId=<groupId>
+    path('get_success_rate/', GetSuccessRate.as_view()),                    # GET, ?groupId=<groupId>
 
     path('group_notices/', StudyGroupNoticeList.as_view()),                 # GET, POST ?groupId=<groupId>
     path('group_notices/<int:pk>/', StudyGroupNoticeDetail.as_view()),      # GET, DELETE ?groupId=<groupId>
