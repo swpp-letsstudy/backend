@@ -29,4 +29,4 @@ class StudyGroup(models.Model):
     saturday = models.BooleanField(default=False)
     sunday = models.BooleanField(default=False)
 
-    time =  models.TimeField(default = datetime.time(00,00,00))
+    time =  models.TimeField(default=datetime.time(00,00,00))
