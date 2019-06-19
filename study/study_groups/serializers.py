@@ -9,5 +9,5 @@ class StudyGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudyGroup
-        fields = ('id', 'name', 'info', 'owner', 'members', 'is_open', 'attendance_amount', 'startday', 'endday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
+        fields = ('id', 'name', 'info', 'owner', 'members', 'is_open', 'attendance_amount', 'startday', 'endday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'time')
 
