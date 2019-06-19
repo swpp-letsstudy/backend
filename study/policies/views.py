@@ -108,7 +108,7 @@ class GetSuccessRate(APIView):
         studyuser = StudyUser.objects.get(user=request.user)
         if not studyuser in studygroup.members.all():
             raise Http404
-        my_fine_num = Fine.objects.filter(meeting__in=studymeetings, user=studyuser).count() + len(studymeetings) - Attendance.objects.filter(meeting__in=studymeetings)
+        my_fine_num = Fine.objects.filter(meeting__in=studymeetings, user=studyuser).count() + len(studymeetings) - Attendance.objects.filter(meeting__in=studymeetings).count()
         total_fine_num = (Policy.objects.filter(group=studygroup).count() + 1) * len(studymeetings)
         rate = 100
         if not total_fine_num == 0:
