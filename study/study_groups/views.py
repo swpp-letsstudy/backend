@@ -111,4 +111,5 @@ class OpenCloseStudyGroup(APIView):
             raise Http404
         studygroup.is_open = not studygroup.is_open
         studygroup.save()
-        return Response('successed', status=200)
+        return Response(status=200)
+
