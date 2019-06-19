@@ -1,4 +1,5 @@
 import datetime, pytz, subprocess, sys, os, random
+from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
@@ -16,7 +17,7 @@ class Command(BaseCommand):
 
     def __init__(self):
         super().__init__()
-        self.now = datetime.datetime.now(pytz.utc) + datetime.timedelta(hours=9)
+        self.now = datetime.datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(hours=9)
 
     def delete_database(self):
         print('Delete database')
@@ -68,6 +69,10 @@ class Command(BaseCommand):
                 name='group%c' % i,
                 info='group%c info' % i,
                 owner=user,
+                startday=self.now - relativedelta(months=1),
+                endday=self.now + relativedelta(months=1),
+                monday=True,
+                time=datetime.time(random.randint(0, 23), 0, 0)
             ).members.set([user])
         for i in range(1, 6):
             study_group = StudyGroup.objects.get(name='group%d'%i)
@@ -103,12 +108,11 @@ class Command(BaseCommand):
     def create_meetings(self):
         print("Create StudyMeetings")
         for study_group in StudyGroup.objects.all():
-            for j in range(0, 24):
-                StudyMeeting.objects.create(
-                    group=study_group,
-                    time=self.now.replace(hour=j, second=0, microsecond=0),
-                    info='Meeting info%d' % j
-                )
+            StudyMeeting.objects.create(
+                group=study_group,
+                time=self.now.replace(hour=random.randint(0, 23), second=0, microsecond=0),
+                info='Not Regular Meeting'
+            )
         self.study_meetings = StudyMeeting.objects.all()
 
     def create_meeting_notices(self):
@@ -148,4 +152,3 @@ class Command(BaseCommand):
         self.create_meeting_notices()
         self.create_policies()
         self.create_fines()
-
