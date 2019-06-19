@@ -1,3 +1,5 @@
+import datetime
+from pytz import utc
 from django.http import Http404
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -30,7 +32,7 @@ class GetFineSum(APIView):
         return Response(data=fine_sum, status=200)
 
 
-class MyGroupFineList(generics.ListAPIView):
+class MyGroupFineList(APIView):
     # GET
     def get(self, request, format=None):
         groupId = self.request.query_params.get('groupId', None)
@@ -53,17 +55,23 @@ class MyGroupFineList(generics.ListAPIView):
         return Response(data=ret, status=200)
 
 
-class MyMeetingFineList(generics.ListAPIView):
-    serializer_class = FineSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
+class MyMeetingFineList(APIView):
+    # GET
+    def get(self, request, format=None):
         meetingId = self.request.query_params.get('meetingId', None)
-        if not StudyMeeting.objects.filter(pk=meetingId).exists():
+        if not StudyMeeting.objects.filter(pk=meetingId).exists() or not StudyUser.objects.filter(user=request.user):
             raise Http404
         studymeeting = StudyMeeting.objects.get(pk=meetingId)
         studyuser = StudyUser.objects.get(user=self.request.user)
-        return Fine.objects.filter(meeting=studymeeting, user=studyuser)
+        policies = Policy.objects.filter(group=studymeeting.group)
+        ret = []
+        for policy in policies:
+            ret.append({
+                'id': policy.id,
+                'policyname': policy.name,
+                'checked': Fine.objects.filter(policy=policy, meeting=studymeeting, user=studyuser).exists()
+            })
+        return Response(data=ret, status=200)
 
 
 class ManageFine(APIView):
@@ -83,6 +91,29 @@ class ManageFine(APIView):
         else:
             Fine.objects.get(user=studyuser, meeting=studymeeting, policy=policy).delete()
         return Response(status=200)
+
+
+class GetSuccessRate(APIView):
+    # GET
+    def get(self, request, format=None):
+        groupId = self.request.query_params.get('groupId', None)
+        if not StudyGroup.objects.filter(pk=groupId).exists() or not StudyUser.objects.filter(user=request.user):
+            raise Http404
+        studygroup = StudyGroup.objects.get(pk=groupId)
+        now = datetime.datetime.now(utc) + datetime.timedelta(hours=9)
+        studymeetings = []
+        for studymeeting in StudyMeeting.objects.filter(group=studygroup):
+            if studymeeting.time < now:
+                studymeetings.append(studymeeting)
+        studyuser = StudyUser.objects.get(user=request.user)
+        if not studyuser in studygroup.members.all():
+            raise Http404
+        my_fine_num = Fine.objects.filter(meeting__in=studymeetings, user=studyuser).count() + len(studymeetings) - Attendance.objects.filter(meeting__in=studymeetings).count()
+        total_fine_num = (Policy.objects.filter(group=studygroup).count() + 1) * len(studymeetings)
+        rate = 100
+        if not total_fine_num == 0:
+            rate = round(100 - 100 * my_fine_num / total_fine_num)
+        return Response(data=rate, status=200)
 
 
 class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
