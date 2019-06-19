@@ -25,7 +25,7 @@ SECRET_KEY = 'fe90i9^=%*508!g=w@_3$j=utl3akp4(*_tv_bcq&1%@x7=3kn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['three-steel.surge.sh', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -131,7 +131,7 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True		
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000',		
+    'three-steel.surge.sh',
 )
 
 from corsheaders.defaults import default_headers, default_methods
