@@ -153,9 +153,8 @@ class PolicyList(generics.ListCreateAPIView): # policies/?groupId=<groupId>
         serializer.save(group=group)
 
 
-class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>/?groupId=<groupId>
+class PolicyDetail(generics.RetrieveDestroyAPIView): # policies/<int:pk>/?groupId=<groupId>
     # GET get PolicySerializer(Policy(pk=pk)).data
-    # PUT update Policy(pk=pk) with request.data
     # DELETE if user is member of group of policy, delete
     serializer_class = PolicySerializer
     permission_classes = (IsAuthenticated,)
@@ -165,18 +164,6 @@ class PolicyDetail(generics.RetrieveUpdateDestroyAPIView): # policies/<int:pk>/?
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
         return Policy.objects.filter(group=studygroup)
-
-    def perform_update(self, serializer):
-        user = StudyUser.objects.get(user=self.request.user)
-        policy = Policy.objects.get(pk=self.kwargs['pk'])
-        if not user in policy.group.members.all():
-            raise Http404
-        serializer = PolicySerializer(policy, data=self.request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            raise Http404
 
     def perform_destroy(self, request, *argc, **kwargs):
         user = StudyUser.objects.get(user=self.request.user)

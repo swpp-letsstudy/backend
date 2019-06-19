@@ -46,13 +46,13 @@ urlpatterns += [
 
     path('get_sum/', GetFineSum.as_view()),                                 # GET, ?groupId=<groupId>
     path('attendance/', AttendanceView.as_view()),                          # GET, POST, if GET => ?meetingId=<meetingId>
-    path('meeting_fines/', MeetingFineList.as_view()),                     # GET, ?meetingId=<meetingId>
+    path('meeting_fines/', MeetingFineList.as_view()),                      # GET, ?meetingId=<meetingId>
     path('manage_fine/', ManageFine.as_view()),                             # GET, ?userId=<userId>&meetingId=<meetingId>&policyId=<policyId>
     path('my_group_fines/', MyGroupFineList.as_view()),                     # GET, ?groupId=<groupId>
     path('my_meeting_fines/', MyMeetingFineList.as_view()),                 # GET, ?meetingId=<meetingId>
     
     path('policies/', PolicyList.as_view()),                                # GET, POST ?groupId=<groupId>
-    path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, PUT, DELETE ?groupId=<groupId>
+    path('policies/<int:pk>/', PolicyDetail.as_view()),                     # GET, DELETE ?groupId=<groupId>
     
     path('cloud_storage/', CloudStorageFileTree.as_view()),                 # GET ?groupId=<groupId>
     path('cloud_storage/delete/', CloudStorageFileDelete.as_view()),        # POST
