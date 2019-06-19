@@ -1,3 +1,5 @@
+import datetime
+from pytz import utc
 from django.http import Http404
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -98,10 +100,19 @@ class GetSuccessRate(APIView):
         if not StudyGroup.objects.filter(pk=groupId).exists() or not StudyUser.objects.filter(user=request.user):
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
+        now = datetime.datetime.now(utc) + datetime.timedelta(hours=9)
+        studymeetings = []
+        for studymeeting in StudyMeeting.objects.filter(group=studygroup):
+            if studymeeting.time < now:
+                studymeetings.append(studymeeting)
         studyuser = StudyUser.objects.get(user=request.user)
         if not studyuser in studygroup.members.all():
             raise Http404
-        rate = 1 - Fine.objects.filter(policy__group=studygroup, user=studyuser).count() / (Policy.objects.filter(group=studygroup).count() * StudyMeeting.objects.filter(group=studygroup).count())
+        my_fine_num = Fine.objects.filter(meeting__in=studymeetings, user=studyuser).count() + len(studymeetings) - Attendance.objects.filter(meeting__in=studymeetings).count()
+        total_fine_num = (Policy.objects.filter(group=studygroup).count() + 1) * len(studymeetings)
+        rate = 100
+        if not total_fine_num == 0:
+            rate = round(100 - 100 * my_fine_num / total_fine_num)
         return Response(data=rate, status=200)
 
 
