@@ -1,4 +1,5 @@
 import datetime, pytz, subprocess, sys, os, random
+from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
@@ -8,7 +9,7 @@ from study.study_group_notices.models import StudyGroupNotice
 from study.study_meetings.models import StudyMeeting
 from study.study_meeting_notices.models import StudyMeetingNotice
 from study.attendances.models import Attendance
-from study.policies.models import Policy, MeetingFine, Fine
+from study.policies.models import Policy, Fine
 
 
 class Command(BaseCommand):
@@ -16,6 +17,7 @@ class Command(BaseCommand):
 
     def __init__(self):
         super().__init__()
+        self.now = datetime.datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(hours=9)
 
     def delete_database(self):
         print('Delete database')
@@ -67,12 +69,17 @@ class Command(BaseCommand):
                 name='group%c' % i,
                 info='group%c info' % i,
                 owner=user,
+                startday=self.now - relativedelta(months=1),
+                endday=self.now + relativedelta(months=1),
+                monday=True,
+                time=datetime.time(random.randint(0, 23), 0, 0)
             ).members.set([user])
         for i in range(1, 6):
             study_group = StudyGroup.objects.get(name='group%d'%i)
             study_user = StudyUser.objects.get(nickname='nickname%d'%(i%5+1))
             study_group.members.add(study_user)
         self.study_groups = StudyGroup.objects.all()
+
 
     def handle(self, *args, **options):
         self.delete_database()
@@ -81,4 +88,3 @@ class Command(BaseCommand):
         self.create_users()
         self.modify_studyusers()
         self.create_groups()
-
