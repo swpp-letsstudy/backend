@@ -11,9 +11,6 @@ class StudyMeeting(models.Model):
         ordering = ('created',)
     def __str__(self):
         return self.info
-
-  
-
     created = models.DateTimeField(auto_now_add=True)
 
     group = models.ForeignKey(StudyGroup, related_name='study_meetings', on_delete=models.CASCADE)
@@ -50,5 +47,5 @@ def create_meeting(sender, instance, created, **kwargs):
                     flag = True
                     
             if flag:
-                StudyMeeting.objects.create(group=instance, time=datetime.datetime(day.year,day.month, day.day, instance.time.hour,instance.time.minute), info='')
+                StudyMeeting.objects.create(group=instance, time=datetime.datetime(day.year, day.month, day.day, instance.time.hour, instance.time.minute), info='Regular Meeting')
             day = day + datetime.timedelta(days=1)

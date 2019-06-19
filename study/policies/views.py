@@ -40,18 +40,32 @@ class MyGroupFineList(APIView):
             raise Http404
         studygroup = StudyGroup.objects.get(pk=groupId)
         studyuser = StudyUser.objects.get(user=request.user)
-        ret = {}
-        for fine in Fine.objects.filter(policy__group=studygroup, user=studyuser):
-            if not fine.meeting.info in ret:
-                ret[fine.meeting.info] = []
-            ret[fine.meeting.info].append({
-                'id': fine.id,
-                'policy': {
+        studymeetings = StudyMeeting.objects.filter(group=studygroup)
+        ret = []
+        for studymeeting in studymeetings:
+            isAttendance = Attendance.objects.filter(meeting=studymeeting, user=studyuser).exists()
+            fines = Fine.objects.filter(meeting=studymeeting, user=studyuser)
+            if isAttendance and fines.count() == 0:
+                continue
+            fines_and_attendance = []
+            if not isAttendance:
+                fines_and_attendance.append({
+                    'id': -1,
+                    'policyname': 'Attendance',
+                    'amount': studygroup.attendance_amount
+                })
+            for fine in fines:
+                fines_and_attendance.append({
                     'id': fine.policy.id,
-                    'name': fine.policy.name,
+                    'policyname': fine.policy.name,
                     'amount': fine.policy.amount
-                }
+                })
+            ret.append({
+                'id': studymeeting.id,
+                'meetingname': studymeeting.time,
+                'fines' : fines_and_attendance
             })
+
         return Response(data=ret, status=200)
 
 

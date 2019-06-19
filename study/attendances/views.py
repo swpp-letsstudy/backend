@@ -23,3 +23,4 @@ class AttendanceView(generics.CreateAPIView): # attendances/
             attendances.delete()
         else:
             serializer.save(meeting=meeting, user=user)
+
