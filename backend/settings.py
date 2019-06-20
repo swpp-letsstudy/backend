@@ -131,7 +131,7 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True		
 CORS_ORIGIN_WHITELIST = (
-    'elderly-bean.surge.sh',
+    '172.31.19.141',
 )
 
 from corsheaders.defaults import default_headers, default_methods
