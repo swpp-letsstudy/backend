@@ -131,6 +131,7 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True		
 CORS_ORIGIN_WHITELIST = (
+    '15.164.163.171',
     '172.31.19.141',
     'localhost',
 )
