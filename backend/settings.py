@@ -131,7 +131,7 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True		
 CORS_ORIGIN_WHITELIST = (
-    'three-steel.surge.sh',
+    'five-back.surge.sh',
 )
 
 from corsheaders.defaults import default_headers, default_methods
