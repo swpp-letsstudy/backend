@@ -134,6 +134,7 @@ CORS_ORIGIN_WHITELIST = (
     '15.164.163.171',
     '172.31.19.141',
     'localhost',
+    'functional-fang.surge.sh',
 )
 
 from corsheaders.defaults import default_headers, default_methods
